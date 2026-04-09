@@ -22,6 +22,8 @@ export const AuthProvider = ({ children }) => {
     const navigate = useNavigate()
 
     const fetchAndUpdateCurrentUser = async () => {
+        const token = localStorage.getItem('jwtToken')
+        if (!token) return
         try {
             const res = await api.get('/api/user/single')
             setCurrentUser(res.data?.user)

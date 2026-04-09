@@ -41,13 +41,13 @@ export const GlobalProvider = ({ children }) => {
     // }, [])
 
     const fetchWishlist = async () => {
+        if (!currentUser) return
         try {
             const res = await api.get(`/api/products/get-wishlist`)
             console.log(res.data);
             setWishlistItems(res.data.wishlist)
         } catch (error) {
-            console.error(error.response?.data.msg);
-            toast.error(error.response?.data.msg)
+            console.error(error.response?.data?.msg);
         }
     }
 
@@ -97,6 +97,7 @@ export const GlobalProvider = ({ children }) => {
     }
 
     const fetchCart = async () => {
+        if (!currentUser) return
         try {
             setIsCartLoading(true)
             const res = await api.get(`/api/cart/get`)
@@ -104,7 +105,6 @@ export const GlobalProvider = ({ children }) => {
             setCartItems((prev) => ({ ...prev, cart: res.data.cart, totalCartPrice: res.data.totalCartPrice }))
         } catch (error) {
             console.error(error);
-            toast.error(error.response.data.msg)
         }
         finally {
             setIsCartLoading(false)
