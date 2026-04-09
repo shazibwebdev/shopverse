@@ -1,140 +1,120 @@
 const crypto = require('crypto');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const { sendEmail } = require('./mailController');
 
+const brandedEmail = ({ title, username, bodyHtml, headerColor = 'linear-gradient(135deg,#1e40af,#2563eb)' }) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>${title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:'Lato','Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);max-width:600px;width:100%;">
+          <tr>
+            <td style="background:${headerColor};padding:36px 40px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:800;letter-spacing:-0.5px;font-family:'Poppins',sans-serif;">🛍️ ShopVerse</h1>
+              <p style="margin:6px 0 0;color:#bfdbfe;font-size:13px;letter-spacing:1px;text-transform:uppercase;font-family:'Lato',sans-serif;">Your Premium Shopping Destination</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:44px 40px 32px;">
+              ${bodyHtml}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 40px;">
+              <hr style="border:none;border-top:1px solid #e5e7eb;margin:0;" />
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 40px;text-align:center;">
+              <p style="margin:0 0 4px;color:#9ca3af;font-size:12px;font-family:'Lato',sans-serif;">© ${new Date().getFullYear()} ShopVerse. All rights reserved.</p>
+              <p style="margin:0;color:#d1d5db;font-size:11px;font-family:'Lato',sans-serif;">You're receiving this email because you have an account at ShopVerse.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+
 exports.forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
-  console.log('forgot password email:', email);
 
-  const user = await User.findOne({ email })
-  if (!user) {
-    // const error = new Error('User not found');
-    // error.statusCode = 404;
-    // throw error;
-    return res.status(404).json({ msg: 'user not found' })
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ msg: 'No account found with this email.' });
+
+  // Check if a valid (non-expired) reset token already exists
+  const tokenStillValid = user.resetPasswordToken &&
+    user.resetPasswordTokenExpiry &&
+    user.resetPasswordTokenExpiry > Date.now();
+
+  if (tokenStillValid) {
+    return res.status(400).json({
+      msg: 'A password reset link was already sent. Please check your inbox — it is still valid.'
+    });
   }
 
-  const resetToken = user.getResetPasswordToken()
-  console.log('resetToken:', resetToken);
+  const resetToken = user.getResetPasswordToken();
+  await user.save();
 
-  await user.save()
+  const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-  const resetURL = `http://localhost:5173/reset-password/${resetToken}`
-
-  console.log(req.get('host'));
-
-  const message = `
-        You requested a password reset. Click the link below to reset your password:
-        ${resetURL}
-        If you did not request this, please ignore this email.
-    `;
-
-  // === HTML Template ===
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-      <title>Reset Password</title>
-      <style>
-        body {
-          background-color: #F8F9FA;
-          font-family: 'Inter', 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          color: #1A1A1A;
-          line-height: 1.6;
-          font-size: 16px;
-        }
-        .email-wrapper {
-          max-width: 600px;
-          margin: 0 auto;
-          padding: 1.5rem;
-        }
-        .card {
-          background-color: #FFFFFF;
-          border-radius: 16px;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-          padding: 2rem;
-        }
-        .header {
-          background-color: #2563EB;
-          color: #ffffff;
-          padding: 1rem 2rem;
-          border-radius: 12px 12px 0 0;
-          font-family: 'Poppins', sans-serif;
-          font-size: 1.25rem;
-          font-weight: 600;
-          text-align: center;
-        }
-        .content {
-          padding: 1.5rem 0;
-        }
-        .content p {
-          margin: 1rem 0;
-        }
-        .button {
-          display: inline-block;
-          margin-top: 1.5rem;
-          background-color: #2563EB;
-          
-          padding: 0.75rem 1.5rem;
-          border-radius: 8px;
-          text-decoration: none;
-          font-weight: 500;
-          transition: background-color 0.3s ease;
-        }
-        .button:hover {
-          background-color: #1E40AF;
-        }
-        .footer {
-          font-size: 14px;
-          text-align: center;
-          color: #6B7280;
-          margin-top: 2rem;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="email-wrapper">
-        <div class="card">
-          <div class="header">Reset Your Password</div>
-          <div class="content">
-            <p>Hello ${user.username || 'there'},</p>
-            <p>You requested to reset your password. Click the button below to choose a new one:</p>
-            <p style="text-align: center;">
-              <a href="${resetURL}" class="button" style="color: white;">Reset Password</a>
+  const html = brandedEmail({
+    title: 'Reset Your Password',
+    username: user.username,
+    bodyHtml: `
+            <h2 style="margin:0 0 12px;color:#111827;font-size:22px;font-weight:700;font-family:'Poppins',sans-serif;">Reset your password</h2>
+            <p style="margin:0 0 8px;color:#6b7280;font-size:15px;line-height:1.6;font-family:'Lato',sans-serif;">Hi <strong style="color:#111827;">${user.username}</strong>,</p>
+            <p style="margin:0 0 28px;color:#6b7280;font-size:15px;line-height:1.6;font-family:'Lato',sans-serif;">
+                We received a request to reset your ShopVerse password. Click the button below to choose a new one. This link expires in <strong>1 hour</strong>.
             </p>
-            <p>If you didn’t request a password reset, you can safely ignore this email.</p>
-            <p>Thanks,<br/>The ShopVerse Team</p>
-          </div>
-        </div>
-        <div class="footer">
-          &copy; ${new Date().getFullYear()} ShopVerse. All rights reserved.
-        </div>
-      </div>
-    </body>
-    </html>
-    `;
-
+            <table cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
+                <tr>
+                    <td style="border-radius:8px;background:linear-gradient(135deg,#1e40af,#2563eb);">
+                        <a href="${resetURL}" style="display:inline-block;padding:14px 36px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:8px;letter-spacing:0.3px;font-family:'Poppins',sans-serif;">
+                            🔑 Reset My Password
+                        </a>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border-left:4px solid #2563eb;border-radius:6px;margin-bottom:28px;">
+                <tr>
+                    <td style="padding:14px 18px;">
+                        <p style="margin:0;color:#1e40af;font-size:13px;line-height:1.5;font-family:'Lato',sans-serif;">
+                            ⏱ This link will expire in <strong>1 hour</strong>. If it expires, you can request a new one from the login page.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+            <p style="margin:0 0 6px;color:#9ca3af;font-size:12px;font-family:'Lato',sans-serif;">If the button doesn't work, copy and paste this link into your browser:</p>
+            <p style="margin:0 0 28px;word-break:break-all;">
+                <a href="${resetURL}" style="color:#2563eb;font-size:12px;font-family:'Lato',sans-serif;">${resetURL}</a>
+            </p>
+            <p style="margin:0;color:#9ca3af;font-size:13px;line-height:1.6;font-family:'Lato',sans-serif;">
+                If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.
+            </p>`
+  });
 
   try {
-    await sendEmail({
-      to: user.email,
-      subject: 'Password reset instructions',
-      text: message,
-      html: html
-    })
-    res.status(200).json({ msg: 'Password reset link sent' })
+    await sendEmail({ to: user.email, subject: 'Reset your password – ShopVerse', html });
+    res.status(200).json({ msg: 'Password reset link sent. Please check your inbox.' });
   } catch (error) {
     user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
+    user.resetPasswordTokenExpiry = undefined;
     await user.save();
-    res.status(500).json({ msg: 'error sending password reset link' })
+    res.status(500).json({ msg: 'Error sending password reset email. Please try again.' });
   }
-
-
 });
 
 exports.resetPassword = asyncHandler(async (req, res) => {
@@ -147,142 +127,94 @@ exports.resetPassword = asyncHandler(async (req, res) => {
     resetPasswordTokenExpiry: { $gt: Date.now() }
   });
 
-  if (!user) return res.status(409).json({ msg: 'Token is invalid or expired.' })
-  user.password = password
-  user.resetPasswordToken = undefined
-  user.resetPasswordTokenExpiry = undefined
+  if (!user) return res.status(409).json({ msg: 'Reset link is invalid or has expired.' });
 
-  await user.save()
+  user.password = password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordTokenExpiry = undefined;
+  await user.save();
 
-  const goToAuthUrl = `http://localhost:5173/auth`
+  const loginUrl = `${process.env.FRONTEND_URL}/auth`;
 
-  const message = `
-        Your password has been successfully changed.
-        Click here to login
-        ${goToAuthUrl}
-        If you did not request this, please ignore this email.
-    `;
-
-  // === HTML Template ===
-  const html = `
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Password Changed</title>
-    <style>
-      body {
-        background-color: #F8F9FA;
-        font-family: 'Inter', 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: #1A1A1A;
-        line-height: 1.6;
-        font-size: 16px;
-      }
-      .email-wrapper {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 1.5rem;
-      }
-      .card {
-        background-color: #FFFFFF;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        padding: 2rem;
-      }
-      .header {
-        background-color: #16A34A; /* green */
-        color: #ffffff;
-        padding: 1rem 2rem;
-        border-radius: 12px 12px 0 0;
-        font-family: 'Poppins', sans-serif;
-        font-size: 1.25rem;
-        font-weight: 600;
-        text-align: center;
-      }
-      .content {
-        padding: 1.5rem 0;
-      }
-      .content p {
-        margin: 1rem 0;
-      }
-      .footer {
-        font-size: 14px;
-        text-align: center;
-        color: #6B7280;
-        margin-top: 2rem;
-      }
-        .button {
-          display: inline-block;
-          margin-top: 1.5rem;
-          background-color: #16A34A;
-          
-          padding: 0.75rem 1.5rem;
-          border-radius: 8px;
-          text-decoration: none;
-          font-weight: 500;
-          transition: background-color 0.3s ease;
-        }
-        .button:hover {
-          background-color: #1E40AF;
-        }
-    </style>
-  </head>
-  <body>
-    <div class="email-wrapper">
-      <div class="card">
-        <div class="header">Password Changed Successfully</div>
-        <div class="content">
-          <p>Hello ${user.username || 'there'},</p>
-          <p>This is a confirmation that your password has been successfully changed.</p>
-          <p style="text-align: center;">
-              <a href="${goToAuthUrl}" class="button" style="color: white;">Login now!</a>
+  const html = brandedEmail({
+    title: 'Password Changed Successfully',
+    username: user.username,
+    headerColor: 'linear-gradient(135deg,#15803d,#16a34a)',
+    bodyHtml: `
+            <h2 style="margin:0 0 12px;color:#111827;font-size:22px;font-weight:700;font-family:'Poppins',sans-serif;">Password changed successfully</h2>
+            <p style="margin:0 0 8px;color:#6b7280;font-size:15px;line-height:1.6;font-family:'Lato',sans-serif;">Hi <strong style="color:#111827;">${user.username}</strong>,</p>
+            <p style="margin:0 0 28px;color:#6b7280;font-size:15px;line-height:1.6;font-family:'Lato',sans-serif;">
+                Your ShopVerse password has been successfully changed. You can now log in with your new password.
             </p>
-          <p>If you did not make this change or believe an unauthorized person has accessed your account, please contact our support team immediately.</p>
-          <p>Stay safe,<br/>The ShopVerse Team</p>
-        </div>
-      </div>
-      <div class="footer">
-        &copy; ${new Date().getFullYear()} ShopVerse. All rights reserved.
-      </div>
-    </div>
-  </body>
-  </html>
-`;
+            <table cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
+                <tr>
+                    <td style="border-radius:8px;background:linear-gradient(135deg,#15803d,#16a34a);">
+                        <a href="${loginUrl}" style="display:inline-block;padding:14px 36px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:8px;letter-spacing:0.3px;font-family:'Poppins',sans-serif;">
+                            ✅ Log In Now
+                        </a>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#fef2f2;border-left:4px solid #ef4444;border-radius:6px;margin-bottom:28px;">
+                <tr>
+                    <td style="padding:14px 18px;">
+                        <p style="margin:0;color:#b91c1c;font-size:13px;line-height:1.5;font-family:'Lato',sans-serif;">
+                            ⚠️ If you did not make this change, please contact our support team immediately as your account may be compromised.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+            <p style="margin:0;color:#9ca3af;font-size:13px;line-height:1.6;font-family:'Lato',sans-serif;">
+                Stay safe,<br/>The ShopVerse Team
+            </p>`
+  });
 
-
-
-  await sendEmail({
-    to: user.email,
-    subject: 'Password successfully changed.',
-    text: message,
-    html: html
-  })
-
-
-  res.status(200).json({ msg: 'Password has been successfully changed.' })
+  await sendEmail({ to: user.email, subject: 'Your password has been changed – ShopVerse', html });
+  res.status(200).json({ msg: 'Password has been successfully changed.' });
 });
 
-
 exports.changePassword = async (req, res) => {
-  const { id } = req.user
-  const { currentPassword, newPassword, confirmPassword } = req.body
-  if (!currentPassword || !newPassword || !confirmPassword) return res.status(400).json({ msg: 'Credentials not provided properly' })
+  const { id } = req.user;
+  const { currentPassword, newPassword, confirmPassword } = req.body;
 
-  const user = await User.findById(id)
+  if (!currentPassword || !newPassword || !confirmPassword)
+    return res.status(400).json({ msg: 'Please provide all required fields.' });
 
-  if (!user) return res.status(404).json({ msg: 'User not found' })
-  const isMatched = await bcrypt.compare(currentPassword, user.password)
-  if (!isMatched) return res.status(400).json({ msg: "Current password doesn't match." })
-  if (newPassword !== confirmPassword) return res.status(400).json({ msg: "New password and confirm password doesn't match." })
+  const user = await User.findById(id);
+  if (!user) return res.status(404).json({ msg: 'User not found.' });
 
-  user.password = newPassword
+  const isMatched = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatched) return res.status(400).json({ msg: "Current password doesn't match." });
+  if (newPassword !== confirmPassword)
+    return res.status(400).json({ msg: "New password and confirm password don't match." });
 
-  await user.save()
+  user.password = newPassword;
+  await user.save();
 
+  const html = brandedEmail({
+    title: 'Password Updated',
+    username: user.username,
+    headerColor: 'linear-gradient(135deg,#15803d,#16a34a)',
+    bodyHtml: `
+            <h2 style="margin:0 0 12px;color:#111827;font-size:22px;font-weight:700;font-family:'Poppins',sans-serif;">Password updated</h2>
+            <p style="margin:0 0 8px;color:#6b7280;font-size:15px;line-height:1.6;font-family:'Lato',sans-serif;">Hi <strong style="color:#111827;">${user.username}</strong>,</p>
+            <p style="margin:0 0 28px;color:#6b7280;font-size:15px;line-height:1.6;font-family:'Lato',sans-serif;">
+                Your ShopVerse account password was just updated from your profile settings.
+            </p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#fef2f2;border-left:4px solid #ef4444;border-radius:6px;margin-bottom:28px;">
+                <tr>
+                    <td style="padding:14px 18px;">
+                        <p style="margin:0;color:#b91c1c;font-size:13px;line-height:1.5;font-family:'Lato',sans-serif;">
+                            ⚠️ If you did not make this change, please contact our support team immediately.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+            <p style="margin:0;color:#9ca3af;font-size:13px;line-height:1.6;font-family:'Lato',sans-serif;">
+                Stay safe,<br/>The ShopVerse Team
+            </p>`
+  });
 
-  return res.status(200).json({ msg: 'Your password has been changed successfully' })
-
-
-
-}
+  await sendEmail({ to: user.email, subject: 'Your password was updated – ShopVerse', html });
+  return res.status(200).json({ msg: 'Your password has been changed successfully.' });
+};

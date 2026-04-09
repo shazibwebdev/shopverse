@@ -1,32 +1,43 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Loader2 } from 'lucide-react';
+import { Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
 
 const ResetPassword = () => {
-    const { token } = useParams(); // Assume route is /reset-password/:token
+    const { token } = useParams();
     const navigate = useNavigate();
 
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    console.log(token);
-    
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+
+    const validate = () => {
+        if (!password || !confirmPassword) {
+            toast.error('Please fill in all fields');
+            return false;
+        }
+        if (password.length < 8 || password.length > 15) {
+            toast.error('Password must be between 8 and 15 characters');
+            return false;
+        }
+        if (confirmPassword.length < 8 || confirmPassword.length > 15) {
+            toast.error('Confirm password must be between 8 and 15 characters');
+            return false;
+        }
+        if (password !== confirmPassword) {
+            toast.error('Passwords do not match');
+            return false;
+        }
+        return true;
+    };
 
     const handleReset = async (e) => {
         e.preventDefault();
-
-        if (!password || !confirmPassword) {
-            toast.error('Please fill in all fields');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            toast.error('Passwords do not match');
-            return;
-        }
+        if (!validate()) return;
 
         setLoading(true);
         try {
@@ -53,33 +64,57 @@ const ResetPassword = () => {
                 </h2>
 
                 <form onSubmit={handleReset} className="space-y-5">
-                    <div className="relative">
-                        <input
-                            type="password"
-                            placeholder="New Password"
-                            className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg px-4 py-3 pr-10 transition-all duration-300 focus:border-[var(--color-error)]"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <Lock className="w-5 h-5 absolute top-3.5 right-3 text-[var(--color-text-secondary)]" />
+                    {/* New Password */}
+                    <div className="flex flex-col gap-1">
+                        <div className="relative">
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder="New Password (8–15 characters)"
+                                className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg px-4 py-3 pr-10 transition-all duration-300 focus:border-[var(--color-primary)]"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute top-3.5 right-3 text-[var(--color-text-secondary)] cursor-pointer"
+                            >
+                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                        </div>
+                        {password && (password.length < 8 || password.length > 15) && (
+                            <p className="text-red-500 text-xs">Must be 8–15 characters</p>
+                        )}
                     </div>
 
-                    <div className="relative">
-                        <input
-                            type="password"
-                            placeholder="Confirm Password"
-                            className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg px-4 py-3 pr-10 transition-all duration-300 focus:border-[var(--color-error)]"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                        />
-                        <Lock className="w-5 h-5 absolute top-3.5 right-3 text-[var(--color-text-secondary)]" />
+                    {/* Confirm Password */}
+                    <div className="flex flex-col gap-1">
+                        <div className="relative">
+                            <input
+                                type={showConfirm ? 'text' : 'password'}
+                                placeholder="Confirm Password (8–15 characters)"
+                                className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg px-4 py-3 pr-10 transition-all duration-300 focus:border-[var(--color-primary)]"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirm(!showConfirm)}
+                                className="absolute top-3.5 right-3 text-[var(--color-text-secondary)] cursor-pointer"
+                            >
+                                {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                        </div>
+                        {confirmPassword && confirmPassword !== password && (
+                            <p className="text-red-500 text-xs">Passwords do not match</p>
+                        )}
                     </div>
 
                     <motion.button
                         whileTap={{ scale: 0.97 }}
                         disabled={loading}
                         type="submit"
-                        className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-all"
+                        className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-60"
                     >
                         {loading ? (
                             <>
