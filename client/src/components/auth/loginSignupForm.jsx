@@ -1,6 +1,6 @@
 // src/pages/LoginSignUpPage.jsx
 import React, { useState } from "react";
-import "../../styles/Login&SignUpPage.css";
+import "../../styles/login-signup.css";
 import { FaEye, FaEyeSlash, FaEnvelope, FaUser } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../../contexts/AuthContext";
