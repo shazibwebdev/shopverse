@@ -14,6 +14,10 @@ function Products() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalProducts, setTotalProducts] = useState(0)
+  const LIMIT = 12
 
   const priceRangeRef = useRef(null)
   const navigate = useNavigate()
@@ -38,17 +42,22 @@ function Products() {
   const [brands, setBrands] = useState([])
 
   useEffect(() => {
-    if (search === '') fetchProducts()
+    if (search === '') {
+      setPage(1)
+      fetchProducts(1)
+    }
   }, [search])
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (pageToFetch = page) => {
     setLoading(true)
     setError(null)
     try {
       const query = serializeFilters()
       navigate(`${location.pathname}?${query}`)
-      const res = await api.get(`/api/products/get-products?${query}`)
+      const res = await api.get(`/api/products/get-products?${query}&page=${pageToFetch}&limit=${LIMIT}`)
       setProducts(res.data.products)
+      setTotalPages(res.data.totalPages)
+      setTotalProducts(res.data.totalProducts)
     } catch (err) {
       console.log(err)
       setError(err)
@@ -58,11 +67,12 @@ function Products() {
   }
 
   useEffect(() => {
-    fetchProducts()
+    fetchProducts(1)
   }, [])
 
   useEffect(() => {
-    fetchProducts()
+    setPage(1)
+    fetchProducts(1)
   }, [JSON.stringify(filters)])
 
   const serializeFilters = () => {
@@ -352,7 +362,7 @@ function Products() {
         <div className='mb-6 flex justify-between items-center'>
           <h1 className='text-2xl lg:text-3xl font-bold'>Products</h1>
           <div className='text-sm text-gray-500'>
-            {products.length} {products.length === 1 ? 'product' : 'products'} found
+            {totalProducts} {totalProducts === 1 ? 'product' : 'products'} found
           </div>
         </div>
 
@@ -376,6 +386,55 @@ function Products() {
               </div>
             )}
           </>
+        )}
+
+        {/* Pagination */}
+        {!loading && totalPages > 1 && (
+          <div className='flex justify-center items-center gap-2 mt-8 flex-wrap'>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                const prev = page - 1
+                setPage(prev)
+                fetchProducts(prev)
+              }}
+              disabled={page === 1}
+              className='px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 transition'
+            >
+              Prev
+            </motion.button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <motion.button
+                key={p}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setPage(p)
+                  fetchProducts(p)
+                }}
+                className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${
+                  p === page
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'border-gray-300 hover:bg-gray-100'
+                }`}
+              >
+                {p}
+              </motion.button>
+            ))}
+
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                const next = page + 1
+                setPage(next)
+                fetchProducts(next)
+              }}
+              disabled={page === totalPages}
+              className='px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 transition'
+            >
+              Next
+            </motion.button>
+          </div>
         )}
       </main>
     </div>
