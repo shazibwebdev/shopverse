@@ -15,7 +15,10 @@ const userSchema = mongoose.Schema({
         { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true }
     ],
     resetPasswordToken: { type: String },
-    resetPasswordTokenExpiry: { type: String }, 
+    resetPasswordTokenExpiry: { type: String },
+    isVerified: { type: Boolean, default: false },
+    emailVerificationToken: { type: String },
+    emailVerificationTokenExpiry: { type: Date },
 })
 
 

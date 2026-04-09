@@ -3,18 +3,23 @@ import React, { useState } from "react";
 import "../../styles/LogIn&SignUpPage.css";
 import { FaEye, FaEyeSlash, FaEnvelope, FaUser } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-import { useAuth } from "../../contexts/AuthContext"; // Using context
+import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import api from "../../services/api";
 
 export default function LoginSignUpPage() {
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const [showLogInPassword, setShowLogInPassword] = useState(false);
   const [isLoginActive, setIsLoginActive] = useState(false);
 
-  const { signup, login } = useAuth(); // Context Functions
+  // Resend verification state
+  const [showResend, setShowResend] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
 
-  // RHF for Signup
+  const { signup, login } = useAuth();
+
   const {
     register: registerSignUp,
     handleSubmit: handleSubmitSignUp,
@@ -22,7 +27,6 @@ export default function LoginSignUpPage() {
     reset: signUpReset,
   } = useForm();
 
-  // RHF for Login
   const {
     register: registerLogIn,
     handleSubmit: handleSubmitLogIn,
@@ -32,6 +36,22 @@ export default function LoginSignUpPage() {
 
   const onSignUpSubmit = (data) => signup(data, signUpReset, setIsLoginActive);
   const onLogInSubmit = (data) => login(data, loginReset);
+
+  const handleResendVerification = async (e) => {
+    e.preventDefault();
+    if (!resendEmail.trim()) return toast.error("Please enter your email.");
+    setResendLoading(true);
+    try {
+      const res = await api.post("/api/auth/resend-verification", { email: resendEmail });
+      toast.success(res.data.msg);
+      setShowResend(false);
+      setResendEmail("");
+    } catch (err) {
+      toast.error(err.response?.data?.msg || "Failed to resend. Try again.");
+    } finally {
+      setResendLoading(false);
+    }
+  };
 
   return (
     <div className="login-signup-form">
@@ -161,6 +181,48 @@ export default function LoginSignUpPage() {
                   Forgot password?
                 </p>
               </Link>
+
+              {/* Resend verification */}
+              <div className="mt-1">
+                {!showResend ? (
+                  <p
+                    className="text-sm text-blue-600 font-semibold cursor-pointer hover:underline"
+                    onClick={() => setShowResend(true)}
+                  >
+                    Resend verification email?
+                  </p>
+                ) : (
+                  <form onSubmit={handleResendVerification} className="flex flex-col gap-2 mt-1">
+                    <div className="div relative">
+                      <input
+                        type="email"
+                        value={resendEmail}
+                        onChange={(e) => setResendEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        className="border-2 rounded border-gray-400 w-full "
+                      />
+                      <FaEnvelope className="absolute top-3 right-2" />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        onClick={handleResendVerification}
+                        disabled={resendLoading}
+                        className="text-sm bg-blue-600 text-white px-3 py-1.5 rounded font-semibold disabled:opacity-60 cursor-pointer"
+                      >
+                        {resendLoading ? "Sending..." : "Send"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setShowResend(false); setResendEmail(""); }}
+                        className="text-sm text-gray-500 hover:text-gray-700 cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
             </form>
           </div>
         </div>

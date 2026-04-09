@@ -1,43 +1,15 @@
-// Import the configured Nodemailer transporter
-const { default: transporter } = require("../config/mail");
-const crypto = require('crypto');
-const asyncHandler = require('express-async-handler');
-const User = require('../models/User');
+const transporter = require('../config/mail')
 
-exports.sendEmail = async (data) => {
-    const { to, subject, text, html } = data;
-
-    // Basic validation
-    // if (!to || !subject || (!text && !html)) {
-    //     return res.status(400).json({
-    //         msg: "Missing required email fields: to, subject, and text or html",
-    //     });
-    // } 
-
+exports.sendEmail = async ({ to, subject, text, html }) => {
     try {
-        const mailOptions = {
-            from: `"MyApp Support" <${process.env.EMAIL_USER}>`, // sender address
-            to, // list of receivers
-            subject, // Subject line
-            text, // Plain text body (optional)
-            html, // HTML body (optional)
-        };
-
-        // Send the email
-        const info = await transporter.sendMail(mailOptions);
-
-        // return ({
-        //     msg: "Email sent successfully",
-        //     messageId: info.messageId,
-        //     response: info.response,
-        // });
+        await transporter.sendMail({
+            from: `"ShopVerse" <${process.env.EMAIL_USER}>`,
+            to,
+            subject,
+            text,
+            html
+        })
     } catch (error) {
-        console.error("❌ Error sending email:", error);
-
-        // return res.status(500).json({
-        //     msg: "Failed to send email",
-        //     error: error.message || "Unknown error",
-        // });
+        console.error('Error sending email:', error)
     }
-};
-
+}

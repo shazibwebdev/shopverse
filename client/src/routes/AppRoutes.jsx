@@ -22,6 +22,7 @@ import UserProfile from '../components/layout/Profile'
 import UserOrdersManagement from '../components/layout/UserOrdersManagement'
 import UserOrderDetail from '../components/layout/UserOrderDetail'
 import Success from '../components/layout/Success'
+import VerifyEmail from '../components/auth/VerifyEmail'
 import { ToastContainer } from 'react-toastify'
 
 function AppRoutes() {
@@ -51,6 +52,7 @@ function AppRoutes() {
                     <Route path={'/unauthorized'} element={<Unauthorized onBack={() => { navigate(-1) }} />} />
                 </Route>
                 <Route path='/auth' element={<LoginSignUpPage />} />
+                <Route path='/verify-email/:token' element={<VerifyEmail />} />
 
                 <Route path={'/success'} element={
                     <ProtectedRoute >

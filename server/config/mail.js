@@ -1,8 +1,5 @@
-import nodemailer from 'nodemailer'
-import dotenv from 'dotenv'
-dotenv.config()
+const nodemailer = require('nodemailer')
 
-// CREATING TRANSPORTER FOR GMAIL SMTP 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -11,13 +8,12 @@ const transporter = nodemailer.createTransport({
     }
 })
 
-// VERIFICATION OF SMTP CONNECTION
-transporter.verify((error, success) => {
+transporter.verify((error) => {
     if (error) {
-        console.log('SMTP connection error:', error);
+        console.log('SMTP connection error:', error)
     } else {
-        console.log('SMTP server is ready to send emails ✅');
+        console.log('SMTP server is ready to send emails ✅')
     }
 })
 
-export default transporter
+module.exports = transporter
