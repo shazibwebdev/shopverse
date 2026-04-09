@@ -125,9 +125,12 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
       try {
         await sendEmail({
           to: email,
-          subject: `Payment Confirmed – ${order.orderId} | ShopVerse`,
+          subject: `Payment Confirmed (by stripe webhook) – ${order.orderId} | ShopVerse`,
           html
         })
+
+        console.log('✔✔✔Webhook received. email sent');
+        
       } catch (emailErr) {
         console.error('Payment confirmation email failed:', emailErr.message)
       }
