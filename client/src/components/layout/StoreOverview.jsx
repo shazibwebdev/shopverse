@@ -8,23 +8,15 @@ import { useOutletContext } from "react-router-dom";
 const StoreOverview = () => {
     const {
         products,
-        orders
-        // categories,
-        // searchTerm,
-        // setSearchTerm,
-        // selectedCategory,
-        // setSelectedCategory,
-        // deleteConfirm,
-        // setDeleteConfirm,
-        // handleEditProduct,
-        // handleCreateProduct,
-        // handleDeleteProduct
+        allProducts,
+        orders,
+        totalProducts: totalProductsCount
     } = useOutletContext()
 
-    const totalProducts = products.length;
-    const outOfStock = products.filter(p => p.stock === 0).length;
-    const lowStock = products.filter(p => p.stock <= 10 && p.stock !== 0).length;
-    const featuredProducts = products.filter(p => p.isFeatured).length;
+    const totalProducts = totalProductsCount;
+    const outOfStock = allProducts.filter(p => p.stock === 0).length;
+    const lowStock = allProducts.filter(p => p.stock <= 10 && p.stock !== 0).length;
+    const featuredProducts = allProducts.filter(p => p.isFeatured).length;
     const totalRevenue = orders.reduce((sum, order) => {
         if (order.isPaid === true) {
             return sum + order.orderSummary.totalAmount

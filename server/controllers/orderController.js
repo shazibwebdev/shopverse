@@ -111,7 +111,7 @@ exports.placeOrder = async (req, res) => {
         // Clear the user's cart after order is saved
         await Cart.findOneAndUpdate(
             { user: userId },
-            { $set: { items: [], totalCartPrice: 0 } }
+            { $set: { cartItems: [], totalCartPrice: 0 } }
         );
 
         if (newOrder.paymentMethod === 'cash_on_delivery') {

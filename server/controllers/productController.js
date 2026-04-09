@@ -38,6 +38,7 @@ exports.getProducts = async (req, res) => {
             })
         }
 
+
         const totalProducts = await Product.countDocuments(query)
         const totalPages = Math.ceil(totalProducts / limitNum)
         const products = await Product.find(query).skip(skip).limit(limitNum)
@@ -99,10 +100,7 @@ exports.addReview = async (req, res) => {
 }
 
 exports.deleteProduct = async (req, res) => {
-    const { role } = req.user
     const { id } = req.params
-    if (role !== 'admin') return res.status(403).json({ msg: 'Unauthorized to delete product' })
-
     try {
         await Product.findByIdAndDelete({ _id: id })
         res.status(200).json({ msg: 'Product deleted successfully' })
@@ -116,8 +114,6 @@ exports.editProduct = async (req, res) => {
     try {
         const { id } = req.params
         const { product } = req.body
-        const { role } = req.user
-        if (role !== 'admin') return res.status(403).json({ msg: 'Unauthorized to edit product' })
         await Product.findByIdAndUpdate(id, { $set: product }, { new: true, runValidators: true })
         res.status(200).json({ msg: 'Product updated successfully.' })
     } catch (error) {
@@ -128,10 +124,7 @@ exports.editProduct = async (req, res) => {
 
 exports.addProduct = async (req, res) => {
     const { product } = req.body
-    const { role } = req.user
-
     try {
-        if (role !== 'admin') return res.status(403).json({ msg: 'Unauthorized to add product' })
         const newProduct = new Product(product)
         await newProduct.save()
         res.status(200).json({ msg: 'Product added successfully.' })

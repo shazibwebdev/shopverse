@@ -81,7 +81,10 @@ function Products() {
       const value = filters[key]
       if (Array.isArray(value)) {
         if (key === 'priceRange') {
-          params.append(key, value.join(','))
+          // only send priceRange if user actually changed it from the default
+          if (value[0] !== '0' || value[1] !== '5000') {
+            params.append(key, value.join(','))
+          }
         } else {
           value.forEach(item => params.append(key, item))
         }

@@ -62,6 +62,7 @@ const AdminDashboard = () => {
 
     const [activeTab, setActiveTab] = useState('overview');
     const [products, setProducts] = useState([]);
+    const [allProducts, setAllProducts] = useState([]);
     const [orders, setOrders] = useState([]);
     const [editingProduct, setEditingProduct] = useState(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -70,6 +71,10 @@ const AdminDashboard = () => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [loading, setLoading] = useState(true)
+    const [page, setPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [totalProducts, setTotalProducts] = useState(0)
+    const LIMIT = 12
 
     const fetchFilters = async () => {
         try {
@@ -80,22 +85,31 @@ const AdminDashboard = () => {
             setCategories([])
         }
     }
+
+    const fetchAllProductsForStats = async () => {
+        try {
+            const res = await api.get('/api/products/get-products?limit=10000')
+            setAllProducts(res.data.products)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     useEffect(() => {
         fetchFilters()
+        fetchAllProductsForStats()
     }, [])
 
-    const fetchProducts = async () => {
+    const fetchProducts = async (pageToFetch = page) => {
         setLoading(true)
-        // setError(null)
         try {
             const query = serializeFilters()
-            // const query = ''
-            // navigate(`${location.pathname}?${query}`)
-            const res = await api.get(`/api/products/get-products?${query}`)
+            const res = await api.get(`/api/products/get-products?${query}&page=${pageToFetch}&limit=${LIMIT}`)
             setProducts(res.data.products)
+            setTotalPages(res.data.totalPages)
+            setTotalProducts(res.data.totalProducts)
         } catch (err) {
             console.log(err)
-            // setError(err)
         } finally {
             setLoading(false)
         }
@@ -111,7 +125,8 @@ const AdminDashboard = () => {
     }
 
     useEffect(() => {
-        fetchProducts()
+        setPage(1)
+        fetchProducts(1)
         fetchOrders()
     }, [searchTerm, selectedCategory])
 
@@ -151,8 +166,9 @@ const AdminDashboard = () => {
                 )
                 console.log(res.data.msg);
                 toast.success(res.data.msg);
-                fetchProducts()
+                fetchProducts(page)
                 fetchFilters()
+                fetchAllProductsForStats()
             } catch (error) {
                 console.error(error.response.data.msg);
                 toast.error(error.response.data.msg);
@@ -162,8 +178,9 @@ const AdminDashboard = () => {
                 const res = await api.post(`/api/products/add`, { product: editingProduct })
                 console.log(res.data.msg);
                 toast.success(res.data.msg);
-                fetchProducts()
+                fetchProducts(page)
                 fetchFilters()
+                fetchAllProductsForStats()
             } catch (error) {
                 console.error(error.response.data.msg);
                 toast.error(error.response.data.msg);
@@ -180,7 +197,8 @@ const AdminDashboard = () => {
             const res = await api.delete(`/api/products/delete/${id}`)
             console.log(res.data.msg || 'success');
             toast.success(res.data.msg || 'success')
-            fetchProducts()
+            fetchProducts(page)
+            fetchAllProductsForStats()
         } catch (error) {
             console.error(error.response.data.msg || 'Failed to delete product');
             toast.error(error.response.data.msg || 'Failed to delete product')
@@ -204,6 +222,7 @@ const AdminDashboard = () => {
 
     const outletContext = useMemo(() => ({
         products,
+        allProducts,
         orders,
         categories,
         searchTerm,
@@ -215,10 +234,16 @@ const AdminDashboard = () => {
         handleEditProduct,
         handleCreateProduct,
         handleDeleteProduct,
-        loading
+        loading,
+        page,
+        setPage,
+        totalPages,
+        totalProducts,
+        fetchProducts
     }), [
         products, categories, searchTerm, selectedCategory, deleteConfirm,
-        handleEditProduct, handleCreateProduct, handleDeleteProduct
+        handleEditProduct, handleCreateProduct, handleDeleteProduct,
+        page, totalPages, totalProducts, allProducts
     ]);
 
 

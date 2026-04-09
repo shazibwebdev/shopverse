@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const User = require('../models/User')
 
 const verifyToken = async (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1]
@@ -7,11 +8,20 @@ const verifyToken = async (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        req.user = decoded
-        next()
+        
+        const user = await User.findById(decoded.id)
+        if (user) {
+            req.user = user
+            console.log(user, 'decoded');
+
+            next()
+        }
+        else {
+            return res.status(403).json({ msg: 'Login required' })
+        }
     } catch (error) {
-        res.status(403).json({ msg: 'Login required' }) 
-    }  
+        res.status(403).json({ msg: 'Login required' })
+    }
 }
 
 module.exports = verifyToken  

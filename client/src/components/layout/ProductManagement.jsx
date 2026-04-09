@@ -21,7 +21,11 @@ const ProductManagement = () => {
         setDeleteConfirm,
         handleEditProduct,
         handleCreateProduct,
-        handleDeleteProduct
+        handleDeleteProduct,
+        page,
+        setPage,
+        totalPages,
+        fetchProducts
     } = useOutletContext()
 
     return (
@@ -97,6 +101,44 @@ const ProductManagement = () => {
                     </div>
                 )
             }
+
+            {/* Pagination */}
+            {!loading && totalPages > 1 && (
+                <div className='flex justify-center items-center gap-2 mt-6 flex-wrap'>
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => { setPage(page - 1); fetchProducts(page - 1) }}
+                        disabled={page === 1}
+                        className='px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 transition'
+                    >
+                        Prev
+                    </motion.button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                        <motion.button
+                            key={p}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => { setPage(p); fetchProducts(p) }}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${
+                                p === page
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'border-gray-300 hover:bg-gray-100'
+                            }`}
+                        >
+                            {p}
+                        </motion.button>
+                    ))}
+
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => { setPage(page + 1); fetchProducts(page + 1) }}
+                        disabled={page === totalPages}
+                        className='px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 transition'
+                    >
+                        Next
+                    </motion.button>
+                </div>
+            )}
 
             {/* Delete Confirmation Modal */}
             <AnimatePresence>
