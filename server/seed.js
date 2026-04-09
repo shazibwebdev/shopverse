@@ -54,7 +54,7 @@ const productsData = [
     category: "Home & Kitchen",
     brand: "KitchenAid",
     stock: 34,
-    image: "https://images.pexels.com/photos/6823332/pexels-photo-6823332.jpeg?auto=compress&cs=tinysrgb&w=300",
+    image: "https://images.unsplash.com/photo-1758565810987-ca8d617ea7be?q=80&w=708&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     images: [
       { url: "https://images.pexels.com/photos/6823332/pexels-photo-6823332.jpeg?auto=compress&cs=tinysrgb&w=300" },
       { url: "https://images.pexels.com/photos/4969853/pexels-photo-4969853.jpeg?auto=compress&cs=tinysrgb&w=300" }
