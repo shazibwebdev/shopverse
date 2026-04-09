@@ -1,6 +1,6 @@
 // src/context/AuthContext.js
 import { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useGlobal } from "./GlobalContext";
@@ -23,14 +23,7 @@ export const AuthProvider = ({ children }) => {
 
     const fetchAndUpdateCurrentUser = async () => {
         try {
-            const token = localStorage.getItem('jwtToken')
-            const res = await axios.get('http://localhost:5000/api/user/single',
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.get('/api/user/single')
             setCurrentUser(res.data?.user)
         } catch (error) {
             console.error(error);
@@ -47,10 +40,10 @@ export const AuthProvider = ({ children }) => {
     // SIGNUP FUNCTION
     const signup = async (data, reset, setIsLoginActive) => {
         try {
-            const res = await axios.post("http://localhost:5000/api/auth/registerr", data);
+            const res = await api.post("/api/auth/registerr", data);
             toast.success(res.data.msg);
             reset();
-            setIsLoginActive(true); // Switch to login form after successful signup
+            setIsLoginActive(true);
         } catch (error) {
             console.error(error);
             toast.error(error.response?.data?.msg || "Signup failed");
@@ -60,7 +53,7 @@ export const AuthProvider = ({ children }) => {
     // LOGIN FUNCTION
     const login = async (data, reset) => {
         try {
-            const res = await axios.post("http://localhost:5000/api/auth/login", data);
+            const res = await api.post("/api/auth/login", data);
             toast.success(res.data.msg);
             localStorage.setItem("jwtToken", res.data.token);
             setCurrentUser(res.data.user);

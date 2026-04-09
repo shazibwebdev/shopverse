@@ -28,7 +28,7 @@ import {
     ShoppingBag,
     Users,
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
@@ -73,7 +73,7 @@ const AdminDashboard = () => {
 
     const fetchFilters = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/products/get-filters')
+            const res = await api.get('/api/products/get-filters')
             setCategories(res.data.categories)
         } catch (error) {
             console.error(error)
@@ -91,7 +91,7 @@ const AdminDashboard = () => {
             const query = serializeFilters()
             // const query = ''
             // navigate(`${location.pathname}?${query}`)
-            const res = await axios.get(`http://localhost:5000/api/products/get-products?${query}`)
+            const res = await api.get(`/api/products/get-products?${query}`)
             setProducts(res.data.products)
         } catch (err) {
             console.log(err)
@@ -146,16 +146,8 @@ const AdminDashboard = () => {
         if (editingProduct._id) {
             // Update existing product
             try {
-                const token = localStorage.getItem('jwtToken')
-                const res = await axios.put(`http://localhost:5000/api/products/edit/${editingProduct._id}`,
-                    {
-                        product: editingProduct
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
+                const res = await api.put(`/api/products/edit/${editingProduct._id}`,
+                    { product: editingProduct }
                 )
                 console.log(res.data.msg);
                 toast.success(res.data.msg);
@@ -167,17 +159,7 @@ const AdminDashboard = () => {
             }
         } else {
             try {
-                const token = localStorage.getItem('jwtToken')
-                const res = await axios.post(`http://localhost:5000/api/products/add`,
-                    {
-                        product: editingProduct
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                )
+                const res = await api.post(`/api/products/add`, { product: editingProduct })
                 console.log(res.data.msg);
                 toast.success(res.data.msg);
                 fetchProducts()
@@ -195,14 +177,7 @@ const AdminDashboard = () => {
         console.log(id);
 
         try {
-            const token = localStorage.getItem('jwtToken')
-            const res = await axios.delete(`http://localhost:5000/api/products/delete/${id}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.delete(`/api/products/delete/${id}`)
             console.log(res.data.msg || 'success');
             toast.success(res.data.msg || 'success')
             fetchProducts()
@@ -214,19 +189,9 @@ const AdminDashboard = () => {
     };
 
     const fetchOrders = async () => {
-
-        const token = localStorage.getItem('jwtToken')
         try {
             const query = serializeFilters()
-            // console.log(query);
-
-            const res = await axios.get(`http://localhost:5000/api/order/get?${query}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.get(`/api/order/get?${query}`)
             console.log(res.data);
             setOrders(res.data?.orders)
         } catch (error) {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import { toast } from 'react-toastify';
 
 const ResetPassword = () => {
@@ -30,7 +30,7 @@ const ResetPassword = () => {
 
         setLoading(true);
         try {
-            const res = await axios.post(`http://localhost:5000/api/password/reset/${token}`, { password });
+            const res = await api.post(`/api/password/reset/${token}`, { password });
             toast.success(res.data.msg || 'Password reset successful');
             setTimeout(() => navigate('/auth'), 2000);
         } catch (err) {

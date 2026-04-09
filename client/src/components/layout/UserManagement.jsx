@@ -19,7 +19,7 @@ import {
   AlertCircle,
   LucideClipboardList
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext'
 import Loader from '../common/Loader';
 
@@ -59,15 +59,8 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('jwtToken')
       const query = serializeFilters()
-      const res = await axios.get(`http://localhost:5000/api/user/get?${query}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      const res = await api.get(`/api/user/get?${query}`)
       console.log(res.data);
       setUsers(res.data.users)
     } catch (error) {
@@ -81,14 +74,7 @@ const UserManagement = () => {
 
   const fetchAllUsers = async () => {
     try {
-      const token = localStorage.getItem('jwtToken')
-      const res = await axios.get(`http://localhost:5000/api/user/get`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      const res = await api.get(`/api/user/get`)
       console.log(res.data);
       setAllUsers(res.data.users)
     } catch (error) {
@@ -125,17 +111,7 @@ const UserManagement = () => {
 
 
     try {
-      const token = localStorage.getItem('jwtToken')
-      const res = await axios.patch(`http://localhost:5000/api/user/block-toggle/${selectedUser._id}`,
-        {
-
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      const res = await api.patch(`/api/user/block-toggle/${selectedUser._id}`, {})
       console.log(res.data);
       toast.success(res.data?.msg || 'User status updated successfully.')
       fetchUsers()
@@ -153,14 +129,7 @@ const UserManagement = () => {
   const confirmDeleteUser = async () => {
 
     try {
-      const token = localStorage.getItem('jwtToken')
-      const res = await axios.delete(`http://localhost:5000/api/user/delete/${selectedUser._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      const res = await api.delete(`/api/user/delete/${selectedUser._id}`)
       console.log(res.data);
       toast.success(res.data?.msg || "User has been successfully deleted.")
       fetchUsers()
@@ -176,17 +145,7 @@ const UserManagement = () => {
 
   const confirmChangeRole = async () => {
     try {
-      const token = localStorage.getItem('jwtToken')
-      const res = await axios.patch(`http://localhost:5000/api/user/admin-toggle/${selectedUser._id}`,
-        {
-
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      const res = await api.patch(`/api/user/admin-toggle/${selectedUser._id}`, {})
       console.log(res.data);
       toast.success(res.data?.msg || "User's role successfully updated.")
       fetchUsers()

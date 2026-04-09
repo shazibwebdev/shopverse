@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from "framer-motion"
-import axios from 'axios'
+import api from '../services/api'
 import Loader from './common/Loader'
 import ProductCard from './common/ProductCard'
 import { PackageX, RefreshCw, Filter, X } from 'lucide-react'
@@ -47,7 +47,7 @@ function Products() {
     try {
       const query = serializeFilters()
       navigate(`${location.pathname}?${query}`)
-      const res = await axios.get(`http://localhost:5000/api/products/get-products?${query}`)
+      const res = await api.get(`/api/products/get-products?${query}`)
       setProducts(res.data.products)
     } catch (err) {
       console.log(err)
@@ -84,7 +84,7 @@ function Products() {
   useEffect(() => {
     const fetchFilters = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/products/get-filters')
+        const res = await api.get('/api/products/get-filters')
         setCategories(res.data.categories)
         setBrands(res.data.brands)
       } catch (error) {

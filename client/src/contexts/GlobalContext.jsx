@@ -1,6 +1,6 @@
 // src/context/GlobalContext.js
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
@@ -41,17 +41,10 @@ export const GlobalProvider = ({ children }) => {
     // }, [])
 
     const fetchWishlist = async () => {
-
         try {
-            let token = localStorage.getItem('jwtToken')
-            const res = await axios.get(`http://localhost:5000/api/products/get-wishlist`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+            const res = await api.get(`/api/products/get-wishlist`)
             console.log(res.data);
             setWishlistItems(res.data.wishlist)
-
         } catch (error) {
             console.error(error.response?.data.msg);
             toast.error(error.response?.data.msg)
@@ -60,11 +53,7 @@ export const GlobalProvider = ({ children }) => {
 
     const handleAddToWishlist = async (id) => {
         try {
-            const token = localStorage.getItem('jwtToken');
-            const res = await axios.get(
-                `http://localhost:5000/api/products/add-to-wishlist/${id}`,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            const res = await api.get(`/api/products/add-to-wishlist/${id}`);
             toast.success(res.data.msg);
             fetchWishlist();
         } catch (err) {
@@ -74,17 +63,12 @@ export const GlobalProvider = ({ children }) => {
 
     const handleDeleteFromWishlist = async (id) => {
         try {
-            const token = localStorage.getItem('jwtToken');
-            const res = await axios.delete(
-                `http://localhost:5000/api/products/delete-from-wishlist/${id}`,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            const res = await api.delete(`/api/products/delete-from-wishlist/${id}`);
             toast.info(res.data.msg);
             fetchWishlist();
         } catch (err) {
             toast.error(err.response?.data?.msg || 'Error removing from wishlist');
         }
-
     }
     const [isCartLoading, setIsCartLoading] = useState(false)
     const [qtyUpdateId, setQtyUpdateId] = useState(null)
@@ -98,18 +82,10 @@ export const GlobalProvider = ({ children }) => {
         try {
             setIsCartLoading(true)
             setLoadingProductId(id)
-            const token = localStorage.getItem('jwtToken')
-            const res = await axios.post(`http://localhost:5000/api/cart/add/${id}`, {
-            },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                })
+            const res = await api.post(`/api/cart/add/${id}`, {})
             console.log(res.data.msg);
             toast.success(res.data.msg)
             setCartItems((prev) => ({ ...prev, cart: res.data.cart, totalCartPrice: res.data.totalCartPrice }))
-
         } catch (error) {
             console.error(error);
             toast.error(error.response.data.msg)
@@ -123,15 +99,8 @@ export const GlobalProvider = ({ children }) => {
     const fetchCart = async () => {
         try {
             setIsCartLoading(true)
-            const token = localStorage.getItem('jwtToken')
-            const res = await axios.get(`http://localhost:5000/api/cart/get`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                })
+            const res = await api.get(`/api/cart/get`)
             console.log(res.data);
-            // toast.success(res.data.msg)
             setCartItems((prev) => ({ ...prev, cart: res.data.cart, totalCartPrice: res.data.totalCartPrice }))
         } catch (error) {
             console.error(error);
@@ -152,17 +121,7 @@ export const GlobalProvider = ({ children }) => {
         try {
             console.log('id::::', id);
             setQtyUpdateId(id)
-            const token = localStorage.getItem('jwtToken')
-            const res = await axios.patch(`http://localhost:5000/api/cart/qty-inc/${id}`,
-                {
-
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.patch(`/api/cart/qty-inc/${id}`, {})
             setCartItems((prev) => ({ ...prev, cart: res.data.cart, totalCartPrice: res.data.totalCartPrice }))
             console.log(res.data.msg);
         } catch (error) {
@@ -172,22 +131,12 @@ export const GlobalProvider = ({ children }) => {
         finally {
             setQtyUpdateId(null)
         }
-
     }
 
     const handleQtyDec = async (id) => {
         try {
             setQtyUpdateId(id)
-
-            const token = localStorage.getItem('jwtToken')
-            const res = await axios.patch(`http://localhost:5000/api/cart/qty-dec/${id}`,
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.patch(`/api/cart/qty-dec/${id}`, {})
             setCartItems((prev) => ({ ...prev, cart: res.data.cart, totalCartPrice: res.data.totalCartPrice }))
             console.log(res.data.msg);
         } catch (error) {
@@ -202,14 +151,7 @@ export const GlobalProvider = ({ children }) => {
     const handleRemoveCartItem = async (id) => {
         try {
             setQtyUpdateId(id)
-            const token = localStorage.getItem('jwtToken')
-            const res = await axios.delete(`http://localhost:5000/api/cart/remove/${id}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.delete(`/api/cart/remove/${id}`)
             setCartItems((prev) => ({ ...prev, cart: res.data.cart, totalCartPrice: res.data.totalCartPrice }))
             console.log(res.data.msg);
             toast.info(res.data?.msg || 'Item removed from your cart')
@@ -242,6 +184,7 @@ export const GlobalProvider = ({ children }) => {
             fetchCart,
             handleAddToCart,
             cartItems,
+            setCartItems,
 
             handleQtyInc,
             handleQtyDec,

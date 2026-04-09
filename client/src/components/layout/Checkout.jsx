@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Minus, Plus, CreditCard, DollarSign, Truck, MapPin, User, Mail, Phone, Home, Navigation, CreditCardIcon, X, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useGlobal } from "../../contexts/GlobalContext";
-import axios from "axios";
+import api from '../../services/api';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { loadStripe } from '@stripe/stripe-js'
@@ -20,7 +20,7 @@ export default function Checkout() {
 
 
   const { cartItems, handleQtyInc, handleQtyDec, handleRemoveCartItem, isCartLoading,
-    qtyUpdateId
+    qtyUpdateId, setCartItems
   } = useGlobal();
 
   // const {  } = useGlobal();
@@ -199,21 +199,19 @@ export default function Checkout() {
       const stripe = await stripePromise
 
 
-      const token = localStorage.getItem("jwtToken");
-      const res = await axios.post(
-        "http://localhost:5000/api/order/place",
-        { order },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+      const res = await api.post(
+        "/api/order/place",
+        { order }
       );
 
       console.log(res.data);
       toast.success(res.data.msg)
 
-      if (order.paymentMethod == 'cash_on_delivery') return
+      if (order.paymentMethod == 'cash_on_delivery') {
+        setCartItems({ cart: [], totalCartPrice: 0 });
+        navigate('/');
+        return;
+      }
       await stripe.redirectToCheckout({ sessionId: res.data.id })
 
 

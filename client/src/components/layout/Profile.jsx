@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import Loader from '../common/Loader'
 import { useAuth } from '../../contexts/AuthContext';
-import axios from 'axios';
+import api from '../../services/api';
 import { toast } from 'react-toastify';
 
 // Animation variants
@@ -90,14 +90,7 @@ const UserProfile = () => {
   const fetchUser = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('jwtToken')
-      const res = await axios.get('http://localhost:5000/api/user/single',
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      const res = await api.get('/api/user/single')
       console.log(res.data);
       setUserData(res.data?.user)
       fetchAndUpdateCurrentUser()
@@ -129,16 +122,10 @@ const UserProfile = () => {
         console.log(formData);
 
         // Call the API to upload the image
-        const token = localStorage.getItem('jwtToken')
-        const res = await axios.post(
-          'http://localhost:5000/api/upload/profile-image',
+        const res = await api.post(
+          '/api/upload/profile-image',
           formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`
-            }
-          }
+          { headers: { 'Content-Type': 'multipart/form-data' } }
         );
         console.log(res.data);
         setIsWaiting(true)
@@ -158,16 +145,8 @@ const UserProfile = () => {
     // In a real app, this would call an API
     if (userData.username === formData.username) return toast.error('Username is same as before!')
     try {
-      const token = localStorage.getItem('jwtToken')
-      const res = await axios.patch('http://localhost:5000/api/user/update',
-        {
-          username: formData.username,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+      const res = await api.patch('/api/user/update',
+        { username: formData.username }
       )
       console.log(res.data);
       toast.success(res?.data?.msg || 'Username updated successfully')
@@ -199,17 +178,11 @@ const UserProfile = () => {
     e.preventDefault()
 
     try {
-      const token = localStorage.getItem('jwtToken')
-      const res = await axios.patch('http://localhost:5000/api/password/change',
+      const res = await api.patch('/api/password/change',
         {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword,
           confirmPassword: formData.confirmPassword,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
         }
       )
       console.log(res.data);

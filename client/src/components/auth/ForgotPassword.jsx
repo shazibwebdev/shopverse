@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 
@@ -18,7 +18,7 @@ const ForgotPassword = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/password/forgot', { email });
+      const res = await api.post('/api/password/forgot', { email });
       toast.success(res.data.message || 'Password reset link sent!');
     } catch (err) {
       toast.error(err.response?.data?.msg || 'Something went wrong');

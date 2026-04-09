@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from '../../services/api';
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import {
@@ -51,17 +51,8 @@ const OrderDetail = () => {
 
     const { id } = useParams()
     const fetchOrderDetail = async () => {
-        // console.log(id);
-
-        const token = localStorage.getItem('jwtToken')
         try {
-            const res = await axios.get(`http://localhost:5000/api/order/detail/${id}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.get(`/api/order/detail/${id}`)
             console.log(res.data.msg);
             setOrder(res.data.order)
         } catch (error) {
@@ -81,16 +72,8 @@ const OrderDetail = () => {
 
     const handleStatusUpdate = async () => {
         try {
-            const token = localStorage.getItem('jwtToken')
-            const res = await axios.patch(`http://localhost:5000/api/order/update-status/${order?._id}`,
-                {
-                    newStatus: newStatus
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
+            const res = await api.patch(`/api/order/update-status/${order?._id}`,
+                { newStatus: newStatus }
             )
             toast.success(res.data.msg || 'Updated status successfully.');
             fetchOrderDetail()
@@ -105,17 +88,7 @@ const OrderDetail = () => {
 
     const handleCancelOrder = async () => {
         try {
-            const token = localStorage.getItem('jwtToken')
-            const res = await axios.patch(`http://localhost:5000/api/order/cancel/${id}`,
-                {
-
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.patch(`/api/order/cancel/${id}`, {})
             console.log(res.data.msg);
             fetchOrderDetail()
         } catch (error) {

@@ -7,7 +7,7 @@ import {
     SeparatorVertical,
 
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import { toast } from 'react-toastify'
 import { Link } from 'react-router-dom';
 import Loader from '../common/Loader';
@@ -16,20 +16,11 @@ const OrderManagement = () => {
 
 
     const fetchOrders = async () => {
-
-        const token = localStorage.getItem('jwtToken')
         setLoading(true)
         try {
             const query = serializeFilters()
             console.log(query);
-
-            const res = await axios.get(`http://localhost:5000/api/order/get?${query}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.get(`/api/order/get?${query}`)
             console.log(res.data);
             setOrders(res.data?.orders)
         } catch (error) {

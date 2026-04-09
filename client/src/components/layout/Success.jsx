@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from '../../services/api';
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Mail, CreditCard, DollarSign } from "lucide-react";
@@ -24,7 +24,7 @@ export default function Success() {
 
     const fetchSession = async (sessionId) => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/session/${sessionId}`);
+            const res = await api.get(`/api/session/${sessionId}`);
             setSession(res.data?.session);
         } catch (error) {
             console.error(error);

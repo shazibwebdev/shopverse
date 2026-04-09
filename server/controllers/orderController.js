@@ -107,10 +107,12 @@ exports.placeOrder = async (req, res) => {
         if (order.instructions && order.instructions !== '') newOrder.instructions = order.instructions
 
         await newOrder.save();
-        // console.log('new order:::', newOrder);
 
-
-        // const domainURL = process.env.FRONTEND_URL || 'http://localhost:5173'
+        // Clear the user's cart after order is saved
+        await Cart.findOneAndUpdate(
+            { user: userId },
+            { $set: { items: [], totalCartPrice: 0 } }
+        );
 
         if (newOrder.paymentMethod === 'cash_on_delivery') {
             return res.status(200).json({

@@ -10,7 +10,7 @@ import {
     ArrowRight,
     CreditCard
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import Loader from '../common/Loader';
 import { Link } from 'react-router-dom';
@@ -66,14 +66,7 @@ const AccountOverview = () => {
 
     const fetchUser = async () => {
         try {
-            const token = localStorage.getItem('jwtToken')
-            const res = await axios.get('http://localhost:5000/api/user/single',
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.get('/api/user/single')
             console.log(res.data);
             setUserData(res.data?.user)
 
@@ -100,21 +93,9 @@ const AccountOverview = () => {
     }, 0)
 
     const fetchOrders = async () => {
-
-        const token = localStorage.getItem('jwtToken')
         setLoading(true)
         try {
-            const query = ''
-            // const query = serializeFilters()
-            // console.log(query);
-
-            const res = await axios.get(`http://localhost:5000/api/order/user-orders`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.get(`/api/order/user-orders`)
             console.log(res.data);
             setOrders(res.data?.orders)
             setRecentOrders(res.data?.orders.slice(0, 3).reverse())

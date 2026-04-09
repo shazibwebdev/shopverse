@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../services/api';
 import React, { useRef, useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -61,11 +61,9 @@ function ProductDetailPage() {
         if (!commentRef.current.value.trim()) return toast.error('Please write a review comment');
 
         try {
-            const token = localStorage.getItem('jwtToken');
-            const res = await axios.post(
-                `http://localhost:5000/api/products/add-review/${product._id}`,
-                { rating, comment: commentRef.current.value },
-                { headers: { Authorization: `Bearer ${token}` } }
+            const res = await api.post(
+                `/api/products/add-review/${product._id}`,
+                { rating, comment: commentRef.current.value }
             );
             toast.success(res.data.msg);
             fetchProduct();
@@ -79,8 +77,8 @@ function ProductDetailPage() {
     const fetchProduct = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(
-                `http://localhost:5000/api/products/get-single-product/${id}`
+            const res = await api.get(
+                `/api/products/get-single-product/${id}`
             );
             setProduct(res.data.product);
             setMainImg(() => {

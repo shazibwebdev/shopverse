@@ -14,7 +14,7 @@ import {
     Search,
     Filter
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import Loader from '../common/Loader';
 import { Link } from 'react-router-dom';
 
@@ -81,20 +81,11 @@ const UserOrdersManagement = () => {
     }
 
     const fetchOrders = async () => {
-
-        const token = localStorage.getItem('jwtToken')
         setLoading(true)
         try {
             const query = serializeFilters()
             console.log(query);
-
-            const res = await axios.get(`http://localhost:5000/api/order/user-orders?${query}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+            const res = await api.get(`/api/order/user-orders?${query}`)
             console.log(res.data);
             setOrders(res.data?.orders.reverse())
         } catch (error) {
