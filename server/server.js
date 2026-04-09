@@ -13,46 +13,46 @@ const { sendEmail } = require('./controllers/mailController')
 
 // ⚠️ Webhook MUST be registered before express.json() — needs raw body
 app.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
-    const sig = req.headers["stripe-signature"]
-    let event
+  const sig = req.headers["stripe-signature"]
+  let event
 
-    try {
-        event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET)
-    } catch (err) {
-        console.error("Webhook signature verification failed:", err.message)
-        return res.sendStatus(400)
-    }
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET)
+  } catch (err) {
+    console.error("Webhook signature verification failed:", err.message)
+    return res.sendStatus(400)
+  }
 
-    if (event.type === "checkout.session.completed") {
-        const session = event.data.object
-        const paymentIntentId = session.payment_intent
-        const email = session.customer_details?.email
-        const orderId = session.metadata?.orderId
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object
+    const paymentIntentId = session.payment_intent
+    const email = session.customer_details?.email
+    const orderId = session.metadata?.orderId
 
-        const order = await Order.findOne({ orderId })
-        if (order) {
-            // Mark order as paid
-            order.isPaid = true
-            order.paidAt = Date.now()
-            order.paymentResult = { paymentIntentId, emailAddress: email }
-            await order.save()
+    const order = await Order.findOne({ orderId })
+    if (order) {
+      // Mark order as paid
+      order.isPaid = true
+      order.paidAt = Date.now()
+      order.paymentResult = { paymentIntentId, emailAddress: email }
+      await order.save()
 
-            // Decrement stock
-            for (const item of order.orderItems) {
-                await Product.findByIdAndUpdate(item.productId, { $inc: { stock: -item.quantity } })
-            }
+      // Decrement stock
+      for (const item of order.orderItems) {
+        await Product.findByIdAndUpdate(item.productId, { $inc: { stock: -item.quantity } })
+      }
 
-            // Clear cart in DB
-            await Cart.findOneAndUpdate(
-                { user: order.user },
-                { $set: { cartItems: [], totalCartPrice: 0 } }
-            )
+      // Clear cart in DB
+      await Cart.findOneAndUpdate(
+        { user: order.user },
+        { $set: { cartItems: [], totalCartPrice: 0 } }
+      )
 
-            // Send branded payment success email
-            const user = await User.findById(order.user)
-            const orderUrl = `${process.env.FRONTEND_URL}/user-dashboard/order/detail/${order._id}`
+      // Send branded payment success email
+      const user = await User.findById(order.user)
+      const orderUrl = `${process.env.FRONTEND_URL}/user-dashboard/order/detail/${order._id}`
 
-            const html = `<!DOCTYPE html>
+      const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -122,19 +122,19 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
 </body>
 </html>`
 
-            try {
-                await sendEmail({
-                    to: email,
-                    subject: `Payment Confirmed – ${order.orderId} | ShopVerse`,
-                    html
-                })
-            } catch (emailErr) {
-                console.error('Payment confirmation email failed:', emailErr.message)
-            }
-        }
+      try {
+        await sendEmail({
+          to: email,
+          subject: `Payment Confirmed – ${order.orderId} | ShopVerse`,
+          html
+        })
+      } catch (emailErr) {
+        console.error('Payment confirmation email failed:', emailErr.message)
+      }
     }
+  }
 
-    res.sendStatus(200)
+  res.sendStatus(200)
 })
 
 app.use(cors())
@@ -162,11 +162,11 @@ app.use('/api/user', userRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/session', sessionRoutes)
 
-app.get('/', (req,res)=>{
-  res.json({msg: 'hi'})
+app.get('/health', (req, res) => {
+  res.json({ msg: 'server is running' })
 })
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`)
+  console.log(`Server is running on http://localhost:${PORT}`)
 })
