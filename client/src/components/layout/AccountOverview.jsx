@@ -145,183 +145,148 @@ const AccountOverview = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+        <div className="w-full bg-gray-50 p-4 md:p-6 overflow-x-hidden w-full">
             <motion.div
-                className="max-w-6xl mx-auto"
+                className="max-w-6xl mx-auto w-full"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
             >
                 {/* Welcome Header */}
                 <motion.div
-                    className="flex items-center justify-between mb-8"
+                    className="flex items-center justify-between gap-3 mb-6 sm:mb-8"
                     variants={itemVariants}
                 >
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+                    <div className="min-w-0">
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 truncate">
                             Welcome, {userData.username} 👋
                         </h1>
-                        <p className="text-gray-600">Here's your account overview</p>
+                        <p className="text-sm text-gray-600">Here's your account overview</p>
                     </div>
-                    {
-                        userData.avatar !== '' && (
-
-                            <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="relative"
-                            >
-                                <img
-                                    src={userData.avatar}
-                                    alt="Profile"
-                                    className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-white shadow-md"
-                                />
-                                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                            </motion.div>
-                        )
-                    }
+                    {userData.avatar !== '' && (
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="relative flex-shrink-0"
+                        >
+                            <img
+                                src={userData.avatar}
+                                alt="Profile"
+                                className="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-white shadow-md"
+                            />
+                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                        </motion.div>
+                    )}
                 </motion.div>
 
-                {
-                    loading ? (
-                        <div className='w-full h-[300px] flex justify-center items-center'>
-
-                            <Loader />
-                        </div>
-                    )
-                        :
-                        <>
-                            {/* Stats Cards */}
-                            <motion.div
-                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
-                                variants={containerVariants}
-                            >
-                                {/* Total Orders Card */}
+                {loading ? (
+                    <div className='w-full h-[300px] flex justify-center items-center'>
+                        <Loader />
+                    </div>
+                ) : (
+                    <>
+                        {/* Stats Cards — 2 cols on mobile, 4 on large */}
+                        <motion.div
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8"
+                            variants={containerVariants}
+                        >
+                            {[
+                                { label: 'Total Orders', value: orders.length, bg: 'bg-blue-100', icon: <ShoppingBag className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" /> },
+                                { label: 'Pending', value: pendingOrders, bg: 'bg-orange-100', icon: <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" /> },
+                                { label: 'Delivered', value: deliveredOrders, bg: 'bg-green-100', icon: <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" /> },
+                                { label: 'Total Spent', value: formatCurrency(totalAmoutSpent), bg: 'bg-purple-100', icon: <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" /> },
+                            ].map((stat) => (
                                 <motion.div
+                                    key={stat.label}
                                     variants={cardVariants}
-                                    className="bg-white rounded-xl p-5 shadow-md border border-gray-100"
+                                    className="bg-white rounded-xl p-3 sm:p-5 shadow-md border border-gray-100 overflow-hidden"
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-gray-500 text-sm font-medium">Total Orders</p>
-                                            <h3 className="text-2xl font-bold text-gray-800 mt-1">
-                                                {orders.length}
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div className=" overflow-hidden">
+                                            <p className="text-gray-500 text-xs sm:text-sm font-medium leading-tight truncate">{stat.label}</p>
+                                            <h3 className="text-base sm:text-2xl font-bold text-gray-800 mt-1 truncate">
+                                                {stat.value}
                                             </h3>
                                         </div>
-                                        <div className="p-3 bg-blue-100 rounded-lg">
-                                            <ShoppingBag className="h-6 w-6 text-blue-600" />
+                                        <div className={`p-2 sm:p-3 ${stat.bg} rounded-lg `}>
+                                            {stat.icon}
                                         </div>
                                     </div>
                                 </motion.div>
+                            ))}
+                        </motion.div>
 
-                                {/* Pending Orders Card */}
-                                <motion.div
-                                    variants={cardVariants}
-                                    className="bg-white rounded-xl p-5 shadow-md border border-gray-100"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-gray-500 text-sm font-medium">Pending Orders</p>
-                                            <h3 className="text-2xl font-bold text-gray-800 mt-1">
-                                                {pendingOrders}
-                                            </h3>
-                                        </div>
-                                        <div className="p-3 bg-orange-100 rounded-lg">
-                                            <Clock className="h-6 w-6 text-orange-600" />
-                                        </div>
-                                    </div>
-                                </motion.div>
+                        {/* Recent Orders Section */}
+                        <motion.div
+                            className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden"
+                            variants={itemVariants}
+                        >
+                            <div className="p-4 sm:p-5 border-b border-gray-200 flex justify-between items-center gap-2">
+                                <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Recent Orders</h2>
+                                <Link to={'/user-dashboard/orders'}>
+                                    <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center whitespace-nowrap">
+                                        View All <ArrowRight className="ml-1 h-4 w-4" />
+                                    </button>
+                                </Link>
+                            </div>
 
-                                {/* Delivered Orders Card */}
-                                <motion.div
-                                    variants={cardVariants}
-                                    className="bg-white rounded-xl p-5 shadow-md border border-gray-100"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-gray-500 text-sm font-medium">Delivered Orders</p>
-                                            <h3 className="text-2xl font-bold text-gray-800 mt-1">
-                                                {deliveredOrders}
-                                            </h3>
-                                        </div>
-                                        <div className="p-3 bg-green-100 rounded-lg">
-                                            <CheckCircle className="h-6 w-6 text-green-600" />
-                                        </div>
-                                    </div>
-                                </motion.div>
-
-                                {/* Total Spent Card */}
-                                <motion.div
-                                    variants={cardVariants}
-                                    className="bg-white rounded-xl p-5 shadow-md border border-gray-100"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-gray-500 text-sm font-medium">Total Amount Spent</p>
-                                            <h3 className="text-2xl font-bold text-gray-800 mt-1">
-                                                {formatCurrency(totalAmoutSpent)}
-                                            </h3>
-                                        </div>
-                                        <div className="p-3 bg-purple-100 rounded-lg">
-                                            <CreditCard className="h-6 w-6 text-purple-600" />
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            </motion.div>
-
-                            {/* Recent Orders Section */}
-                            <motion.div
-                                className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden"
-                                variants={itemVariants}
-                            >
-                                <div className="p-5 border-b border-gray-200 flex justify-between items-center">
-                                    <h2 className="text-xl font-semibold text-gray-800">Recent Orders</h2>
-                                    <Link to={'/user-dashboard/orders'}>
-                                        <button className="text-blue-600 hover:text-blue-800 font-medium flex items-center">
-                                            View All Orders <ArrowRight className="ml-1 h-4 w-4" />
-                                        </button>
-                                    </Link>
-                                </div>
-
-                                <div className="divide-y divide-gray-100">
-                                    {recentOrders.length === 0 ? (<p className='p-4'>No orders to show yet.</p>) : recentOrders.map((order) => (
+                            <div className="divide-y divide-gray-100">
+                                {recentOrders.length === 0 ? (
+                                    <p className="p-4 text-sm text-gray-500">No orders to show yet.</p>
+                                ) : (
+                                    recentOrders.map((order) => (
                                         <motion.div
                                             key={order._id}
-                                            className="p-5 hover:bg-gray-50 transition-colors duration-200"
-                                            whileHover={{ x: 5 }}
-                                            transition={{ type: "spring", stiffness: 300 }}
+                                            className="p-3 sm:p-4 hover:bg-gray-50 transition-colors duration-200"
+                                            transition={{ type: 'spring', stiffness: 300 }}
                                         >
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center space-x-4">
+                                            <div className="flex flex-col gap-3">
+                                                {/* Top Row */}
+                                                <div className="flex items-start gap-3 min-w-0">
                                                     <img
                                                         src={order.orderItems[0].image}
                                                         alt={order.orderItems[0].name}
-                                                        className="w-16 h-16 object-cover rounded-lg"
+                                                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg object-cover flex-shrink-0 border border-gray-100"
                                                     />
-                                                    <div>
-                                                        <h3 className="font-medium text-gray-900">{order.orderItems[0].name}</h3>
-                                                        <p className="text-sm text-gray-500">Order ID: {order.orderId}</p>
-                                                        <p className="text-sm text-gray-500">{formatDate(order.createdAt)}</p>
+
+                                                    <div className="flex-1 min-w-0 overflow-hidden">
+                                                        <h3 className="text-sm sm:text-base font-semibold text-gray-900 leading-snug break-words line-clamp-2">
+                                                            {order.orderItems[0].name}
+                                                        </h3>
+
+                                                        <p className="mt-1 text-[11px] sm:text-xs text-gray-500 break-all leading-relaxed">
+                                                            {order.orderId}
+                                                        </p>
+
+                                                        <p className="mt-1 text-[11px] sm:text-xs text-gray-400">
+                                                            {formatDate(order.createdAt)}
+                                                        </p>
                                                     </div>
                                                 </div>
 
-                                                <div className="text-right">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.orderStatus)}`}>
-                                                        {order.orderStatus.charAt(0).toUpperCase() + order.orderStatus.slice(1)}
+                                                {/* Bottom Row */}
+                                                <div className="flex items-center justify-between gap-2 pl-[60px] sm:pl-0 sm:justify-end sm:gap-3 flex-wrap">
+                                                    <span
+                                                        className={`inline-flex max-w-full items-center rounded-full px-2.5 py-1 text-[11px] font-medium whitespace-nowrap ${getStatusColor(
+                                                            order.orderStatus
+                                                        )}`}
+                                                    >
+                                                        {order.orderStatus.charAt(0).toUpperCase() +
+                                                            order.orderStatus.slice(1)}
                                                     </span>
-                                                    <p className="text-lg font-semibold text-gray-900 mt-1">
+
+                                                    <p className="text-sm sm:text-base font-bold text-gray-900 whitespace-nowrap">
                                                         {formatCurrency(order.orderSummary.totalAmount)}
                                                     </p>
                                                 </div>
                                             </div>
                                         </motion.div>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        </>
-                }
-
-
+                                    ))
+                                )}
+                            </div>
+                        </motion.div>
+                    </>
+                )}
             </motion.div>
         </div>
     );

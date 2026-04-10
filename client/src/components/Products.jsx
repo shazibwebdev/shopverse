@@ -7,7 +7,7 @@ import Loader from './common/Loader'
 import ProductCard from './common/ProductCard'
 import { PackageX, RefreshCw, Filter, X } from 'lucide-react'
 import ErrorPage from './layout/ErrorPage'
-
+import HeroSection from './layout/HeroSection'
 
 function Products() {
   const [products, setProducts] = useState([])
@@ -140,307 +140,332 @@ function Products() {
   </div>
 
   return (
-    <div className='relative flex flex-col lg:flex-row min-h-screen'>
-      {/* Mobile Filter Toggle Button */}
-      <div className='lg:hidden fixed bottom-6 right-6 z-40'>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setIsFilterOpen(true)}
-          className='bg-blue-600 text-white p-4 rounded-full shadow-lg flex items-center justify-center'
-        >
-          <Filter size={24} />
-        </motion.button>
-      </div>
-
-      {/* Filter Sidebar Overlay for Mobile */}
-      <AnimatePresence>
-        {isFilterOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black z-30 lg:hidden"
-              onClick={() => setIsFilterOpen(false)}
-            />
-            <motion.aside
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'tween', ease: 'easeInOut' }}
-              className='fixed top-0 left-0 h-full w-80 max-w-full bg-white z-40 overflow-y-auto lg:hidden shadow-xl'
-            >
-              <div className='p-6 flex flex-col gap-6'>
-                <div className='flex justify-between items-center'>
-                  <h1 className='text-2xl font-bold'>Filters</h1>
-                  <button onClick={() => setIsFilterOpen(false)}>
-                    <X size={24} />
-                  </button>
-                </div>
-
-                {/* Search */}
-                <form onSubmit={(e) => {
-                  e.preventDefault()
-                  fetchProducts()
-                  setIsFilterOpen(false)
-                }}>
-                  <h2 className='text-md font-semibold mb-1'>SEARCH</h2>
-                  <input
-                    className='p-2 rounded w-full border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
-                    placeholder='Search products...'
-                    type='text'
-                    name='search'
-                    onChange={(e) => {
-                      setSearch(e.target.value)
-                    }}
-                  />
-                </form>
-
-                {/* Categories */}
-                <div className='flex flex-col gap-1'>
-                  <h2 className='text-md font-semibold mb-1'>CATEGORIES</h2>
-                  {
-                    categories.length === 0
-                      ? <p className='text-gray-500'>No categories available.</p>
-                      : categories.map(category => (
-                        <label key={category} className='flex gap-2 items-center cursor-pointer py-1'>
-                          <input type='checkbox' value={category} {...register('categories')} />
-                          <span className='text-gray-700'>{category}</span>
-                        </label>
-                      ))
-                  }
-                </div>
-
-                {/* Brands */}
-                <div className='flex flex-col gap-1'>
-                  <h2 className='text-md font-semibold mb-1'>BRANDS</h2>
-                  {
-                    brands.length === 0
-                      ? <p className='text-gray-500'>No brands available.</p>
-                      : brands.map(brand => (
-                        <label key={brand} className='flex gap-2 items-center cursor-pointer py-1'>
-                          <input type='checkbox' value={brand} {...register('brands')} />
-                          <span className='text-gray-700'>{brand}</span>
-                        </label>
-                      ))
-                  }
-                </div>
-
-                {/* Price Range */}
-                <div>
-                  <h2 className='text-md font-semibold mb-1'>PRICE RANGE</h2>
-                  <input
-                    type='range'
-                    min={0}
-                    max={5000}
-                    defaultValue={0}
-                    {...register('priceRange')}
-                    ref={priceRangeRef}
-                    onChange={(e) => {
-                      setValue('priceRange', [e.target.value, 5000])
-                    }}
-                    className='w-full'
-                  />
-                  <p className='text-sm text-gray-600'>
-                    ${filters.priceRange[0]} - ${filters.priceRange[1]}
-                  </p>
-                </div>
-
-                {/* Reset Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    reset({
-                      categories: [],
-                      brands: [],
-                      search: '',
-                      priceRange: ["0", "5000"]
-                    })
-                    priceRangeRef.current.value = 0
-                  }}
-                  className='bg-green-600 text-white font-semibold text-lg py-2 rounded'
+    <>
+      <HeroSection />
+      <div className='products-section bg-gray-50 relative flex flex-col lg:flex-row min-h-screen'>
+        {/* Mobile Filter Toggle Button */}
+        <div className='lg:hidden fixed bottom-20 right-4 z-50'>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsFilterOpen(prev => !prev)}
+            className={`text-white p-4 rounded-full shadow-lg flex items-center justify-center transition-colors ${isFilterOpen ? 'bg-red-500' : 'bg-blue-600'}`}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {isFilterOpen ? (
+                <motion.span
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
                 >
-                  Reset Filters
-                </motion.button>
-              </div>
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Filter Sidebar for Desktop */}
-      <aside className='hidden lg:flex lg:flex-col m-5 rounded-xl gap-6 p-6 bg-white shadow-md w-80 flex-shrink-0'>
-        <h1 className='text-2xl font-bold'>Filters</h1>
-
-        {/* Search */}
-        <form onSubmit={(e) => {
-          e.preventDefault()
-          fetchProducts()
-        }}>
-          <h2 className='text-md font-semibold mb-1'>SEARCH</h2>
-          <input
-            className='p-2 rounded w-full border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
-            placeholder='Search products...'
-            type='text'
-            name='search'
-            onChange={(e) => {
-              setSearch(e.target.value)
-            }}
-          />
-        </form>
-
-        {/* Categories */}
-        <div className='flex flex-col gap-1'>
-          <h2 className='text-md font-semibold mb-1'>CATEGORIES</h2>
-          {
-            categories.length === 0
-              ? <p className='text-gray-500'>No categories available.</p>
-              : categories.map(category => (
-                <label key={category} className='flex gap-2 items-center cursor-pointer py-1'>
-                  <input type='checkbox' value={category} {...register('categories')} />
-                  <span className='text-gray-700'>{category}</span>
-                </label>
-              ))
-          }
+                  <X size={24} />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="filter"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Filter size={24} />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
         </div>
 
-        {/* Brands */}
-        <div className='flex flex-col gap-1'>
-          <h2 className='text-md font-semibold mb-1'>BRANDS</h2>
-          {
-            brands.length === 0
-              ? <p className='text-gray-500'>No brands available.</p>
-              : brands.map(brand => (
-                <label key={brand} className='flex gap-2 items-center cursor-pointer py-1'>
-                  <input type='checkbox' value={brand} {...register('brands')} />
-                  <span className='text-gray-700'>{brand}</span>
-                </label>
-              ))
-          }
-        </div>
+        {/* Filter Sidebar Overlay for Mobile */}
+        <AnimatePresence>
+          {isFilterOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.5 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black z-30 lg:hidden"
+                onClick={() => setIsFilterOpen(false)}
+              />
+              <motion.aside
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'tween', ease: 'easeInOut' }}
+                className='fixed top-0 left-0 h-full w-80 max-w-full bg-white z-40 overflow-y-auto lg:hidden shadow-xl'
+              >
+                <div className='p-6 flex flex-col gap-6'>
+                  <div className='flex justify-between items-center'>
+                    <h1 className='text-2xl font-bold'>Filters</h1>
+                    <button onClick={() => setIsFilterOpen(false)}>
+                      <X size={24} />
+                    </button>
+                  </div>
 
-        {/* Price Range */}
-        <div>
-          <h2 className='text-md font-semibold mb-1'>PRICE RANGE</h2>
-          <input
-            type='range'
-            min={0}
-            max={5000}
-            defaultValue={0}
-            {...register('priceRange')}
-            ref={priceRangeRef}
-            onChange={(e) => {
-              setValue('priceRange', [e.target.value, 5000])
-            }}
-            className='w-full'
-          />
-          <p className='text-sm text-gray-600'>
-            ${filters.priceRange[0]} - ${filters.priceRange[1]}
-          </p>
-        </div>
+                  {/* Search */}
+                  <form onSubmit={(e) => {
+                    e.preventDefault()
+                    fetchProducts()
+                    setIsFilterOpen(false)
+                  }}>
+                    <h2 className='text-md font-semibold mb-1'>SEARCH</h2>
+                    <input
+                      className='p-2 rounded w-full border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+                      placeholder='Search products...'
+                      type='text'
+                      name='search'
+                      onChange={(e) => {
+                        setSearch(e.target.value)
+                      }}
+                    />
+                  </form>
 
-        {/* Reset Button */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            reset({
-              categories: [],
-              brands: [],
-              search: '',
-              priceRange: ["0", "5000"]
-            })
-            priceRangeRef.current.value = 0
-          }}
-          className='bg-green-600 text-white font-semibold text-lg py-2 rounded'
-        >
-          Reset Filters
-        </motion.button>
-      </aside>
+                  {/* Categories */}
+                  <div className='flex flex-col gap-1'>
+                    <h2 className='text-md font-semibold mb-1'>CATEGORIES</h2>
+                    {
+                      categories.length === 0
+                        ? <p className='text-gray-500'>No categories available.</p>
+                        : categories.map(category => (
+                          <label key={category} className='flex gap-2 items-center cursor-pointer py-1'>
+                            <input type='checkbox' value={category} {...register('categories')} />
+                            <span className='text-gray-700'>{category}</span>
+                          </label>
+                        ))
+                    }
+                  </div>
 
-      {/* Product Grid */}
-      <main className='flex-1 p-4 lg:p-6'>
-        <div className='mb-6 flex justify-between items-center'>
-          <h1 className='text-2xl lg:text-3xl font-bold'>Products</h1>
-          <div className='text-sm text-gray-500'>
-            {totalProducts} {totalProducts === 1 ? 'product' : 'products'} found
-          </div>
-        </div>
+                  {/* Brands */}
+                  <div className='flex flex-col gap-1'>
+                    <h2 className='text-md font-semibold mb-1'>BRANDS</h2>
+                    {
+                      brands.length === 0
+                        ? <p className='text-gray-500'>No brands available.</p>
+                        : brands.map(brand => (
+                          <label key={brand} className='flex gap-2 items-center cursor-pointer py-1'>
+                            <input type='checkbox' value={brand} {...register('brands')} />
+                            <span className='text-gray-700'>{brand}</span>
+                          </label>
+                        ))
+                    }
+                  </div>
 
-        {loading ? (
-          <div className='flex justify-center items-center h-64'>
-            <Loader />
-          </div>
-        ) : (
-          <>
-            {products.length === 0 ? (
-              <div className='flex flex-col items-center justify-center h-64 text-gray-500'>
-                <PackageX size={65} strokeWidth={1} />
-                <p className='text-lg font-medium mt-4'>No products to show</p>
-                <p className='text-sm mt-2'>Try adjusting your filters</p>
-              </div>
-            ) : (
-              <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6'>
-                {products.map((prod, idx) => (
-                  <ProductCard key={prod._id} idx={idx} {...prod} />
-                ))}
-              </div>
-            )}
-          </>
-        )}
+                  {/* Price Range */}
+                  <div>
+                    <h2 className='text-md font-semibold mb-1'>PRICE RANGE</h2>
+                    <input
+                      type='range'
+                      min={0}
+                      max={5000}
+                      defaultValue={0}
+                      {...register('priceRange')}
+                      ref={priceRangeRef}
+                      onChange={(e) => {
+                        setValue('priceRange', [e.target.value, 5000])
+                      }}
+                      className='w-full'
+                    />
+                    <p className='text-sm text-gray-600'>
+                      ${filters.priceRange[0]} - ${filters.priceRange[1]}
+                    </p>
+                  </div>
 
-        {/* Pagination */}
-        {!loading && totalPages > 1 && (
-          <div className='flex justify-center items-center gap-2 mt-8 flex-wrap'>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                const prev = page - 1
-                setPage(prev)
-                fetchProducts(prev)
+                  {/* Reset Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      reset({
+                        categories: [],
+                        brands: [],
+                        search: '',
+                        priceRange: ["0", "5000"]
+                      })
+                      priceRangeRef.current.value = 0
+                    }}
+                    className='bg-green-600 text-white font-semibold text-lg py-2 rounded'
+                  >
+                    Reset Filters
+                  </motion.button>
+                </div>
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Filter Sidebar for Desktop */}
+        <aside className='hidden lg:flex lg:flex-col m-5 rounded-xl gap-6 p-6 bg-white shadow-md w-80 flex-shrink-0'>
+          <h1 className='text-2xl font-bold'>Filters</h1>
+
+          {/* Search */}
+          <form onSubmit={(e) => {
+            e.preventDefault()
+            fetchProducts()
+          }}>
+            <h2 className='text-md font-semibold mb-1'>SEARCH</h2>
+            <input
+              className='p-2 rounded w-full border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+              placeholder='Search products...'
+              type='text'
+              name='search'
+              onChange={(e) => {
+                setSearch(e.target.value)
               }}
-              disabled={page === 1}
-              className='px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 transition'
-            >
-              Prev
-            </motion.button>
+            />
+          </form>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+          {/* Categories */}
+          <div className='flex flex-col gap-1'>
+            <h2 className='text-md font-semibold mb-1'>CATEGORIES</h2>
+            {
+              categories.length === 0
+                ? <p className='text-gray-500'>No categories available.</p>
+                : categories.map(category => (
+                  <label key={category} className='flex gap-2 items-center cursor-pointer py-1'>
+                    <input type='checkbox' value={category} {...register('categories')} />
+                    <span className='text-gray-700'>{category}</span>
+                  </label>
+                ))
+            }
+          </div>
+
+          {/* Brands */}
+          <div className='flex flex-col gap-1'>
+            <h2 className='text-md font-semibold mb-1'>BRANDS</h2>
+            {
+              brands.length === 0
+                ? <p className='text-gray-500'>No brands available.</p>
+                : brands.map(brand => (
+                  <label key={brand} className='flex gap-2 items-center cursor-pointer py-1'>
+                    <input type='checkbox' value={brand} {...register('brands')} />
+                    <span className='text-gray-700'>{brand}</span>
+                  </label>
+                ))
+            }
+          </div>
+
+          {/* Price Range */}
+          <div>
+            <h2 className='text-md font-semibold mb-1'>PRICE RANGE</h2>
+            <input
+              type='range'
+              min={0}
+              max={5000}
+              defaultValue={0}
+              {...register('priceRange')}
+              ref={priceRangeRef}
+              onChange={(e) => {
+                setValue('priceRange', [e.target.value, 5000])
+              }}
+              className='w-full'
+            />
+            <p className='text-sm text-gray-600'>
+              ${filters.priceRange[0]} - ${filters.priceRange[1]}
+            </p>
+          </div>
+
+          {/* Reset Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              reset({
+                categories: [],
+                brands: [],
+                search: '',
+                priceRange: ["0", "5000"]
+              })
+              priceRangeRef.current.value = 0
+            }}
+            className='bg-green-600 text-white font-semibold text-lg py-2 rounded'
+          >
+            Reset Filters
+          </motion.button>
+        </aside>
+
+        {/* Product Grid */}
+        <main className='flex-1 p-4 lg:p-6 pb-24 lg:pb-6'>
+          <div className='mb-4 sm:mb-6 flex justify-between items-center gap-2'>
+            <h1 className='text-xl sm:text-2xl lg:text-3xl font-bold'>Products</h1>
+            <div className='text-xs sm:text-sm text-gray-500 whitespace-nowrap'>
+              {totalProducts} {totalProducts === 1 ? 'product' : 'products'} found
+            </div>
+          </div>
+
+          {loading ? (
+            <div className='flex justify-center items-center h-64'>
+              <Loader />
+            </div>
+          ) : (
+            <>
+              {products.length === 0 ? (
+                <div className='flex flex-col items-center justify-center h-64 text-gray-500'>
+                  <PackageX size={65} strokeWidth={1} />
+                  <p className='text-lg font-medium mt-4'>No products to show</p>
+                  <p className='text-sm mt-2'>Try adjusting your filters</p>
+                </div>
+              ) : (
+                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6'>
+                  {products.map((prod, idx) => (
+                    <ProductCard key={prod._id} idx={idx} {...prod} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Pagination */}
+          {!loading && totalPages > 1 && (
+            <div className='flex justify-center items-center gap-2 mt-8 flex-wrap'>
               <motion.button
-                key={p}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
-                  setPage(p)
-                  fetchProducts(p)
+                  const prev = page - 1
+                  setPage(prev)
+                  fetchProducts(prev)
                 }}
-                className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${
-                  p === page
+                disabled={page === 1}
+                className='px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 transition'
+              >
+                Prev
+              </motion.button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <motion.button
+                  key={p}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setPage(p)
+                    fetchProducts(p)
+                  }}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${p === page
                     ? 'bg-blue-600 text-white border-blue-600'
                     : 'border-gray-300 hover:bg-gray-100'
-                }`}
-              >
-                {p}
-              </motion.button>
-            ))}
+                    }`}
+                >
+                  {p}
+                </motion.button>
+              ))}
 
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                const next = page + 1
-                setPage(next)
-                fetchProducts(next)
-              }}
-              disabled={page === totalPages}
-              className='px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 transition'
-            >
-              Next
-            </motion.button>
-          </div>
-        )}
-      </main>
-    </div>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  const next = page + 1
+                  setPage(next)
+                  fetchProducts(next)
+                }}
+                disabled={page === totalPages}
+                className='px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 transition'
+              >
+                Next
+              </motion.button>
+            </div>
+          )}
+        </main>
+      </div>
+    </>
+
   )
 }
 

@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import Navbar from '../components/layout/Navbar'
 import CartDropdown from '../components/common/CartDropdown'
+import Footer from '../components/layout/Footer'
 import { useGlobal } from '../contexts/GlobalContext'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -10,7 +11,6 @@ function MainLayoutPage() {
   const {
     dropdownRef,
     setIsOpen,
-    cartBtn,
     isOpen
   } = useGlobal()
 
@@ -50,9 +50,10 @@ function MainLayoutPage() {
       </AnimatePresence>
       <Navbar />
       <CartDropdown />
-      <div className='mt-[80px]'>
+      <div className='mt-[70px] sm:mt-[80px]'>
         <Outlet />
       </div>
+      <Footer />
       
     </div>
   )

@@ -165,10 +165,10 @@ const UserManagement = () => {
   const adminUsers = allUsers.filter(user => user.role === 'admin').length;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 mt-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 pt-6 sm:pt-8">
       <div className="max-w-7xl mx-auto">
         <motion.h1
-          className="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-2"
+          className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 flex items-center gap-2"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
@@ -232,44 +232,38 @@ const UserManagement = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.4 }}
         >
-          <div className="flex flex-col md:flex-row gap-4 justify-between">
-            <div className="relative flex-1 max-w-md">
+          <div className="flex flex-col gap-4 justify-between">
+            <div className="relative w-full sm:max-w-md">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search users..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2">
-                <Filter className="text-gray-400 w-5 h-5" />
-                <select
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={roleFilter}
-                  onChange={(e) => setRoleFilter(e.target.value)}
-                >
-                  <option value="all">All Roles</option>
-                  <option value="admin">Admin</option>
-                  <option value="user">User</option>
-                </select>
-              </div>
+            <div className="flex flex-wrap gap-3">
+              <select
+                className="flex-1 min-w-[120px] border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+              >
+                <option value="all">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
+              </select>
 
-              <div className="flex items-center gap-2">
-                <Filter className="text-gray-400 w-5 h-5" />
-                <select
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="blocked">Blocked</option>
-                </select>
-              </div>
+              <select
+                className="flex-1 min-w-[120px] border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="blocked">Blocked</option>
+              </select>
             </div>
           </div>
         </motion.div>
@@ -295,7 +289,7 @@ const UserManagement = () => {
                   loading ? <div className='flex justify-center items-center min-h-[250px]'>
                     <Loader />
                   </div> : (
-                    <table className="w-full">
+                    <table className="w-full min-w-[600px]">
                       <thead className="bg-gray-50">
                         <tr>
                           <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>

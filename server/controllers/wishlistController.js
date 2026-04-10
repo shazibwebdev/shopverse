@@ -28,27 +28,36 @@ exports.addToWishlist = async (req, res) => {
 exports.deleteFromWishlist = async (req, res) => {
     const { id: userId } = req.user
     const { id } = req.params
-    let user = await User.findById(userId)
-
-    if (!user) res.status(404).json({ msg: 'user not found.' })
-
-    user.wishlist = user.wishlist.filter(item => item.toString() !== id)
     
-    await user.save()
-    console.log('updated wishlist user:::', user);
-    res.status(200).json({ msg: 'Item successfully removed form wishlist.' })
+    try {
+        let user = await User.findById(userId)
+
+        if (!user) return res.status(404).json({ msg: 'user not found.' })
+
+        user.wishlist = user.wishlist.filter(item => item.toString() !== id)
+        
+        await user.save()
+        console.log('updated wishlist user:::', user);
+        res.status(200).json({ msg: 'Item successfully removed from wishlist.' })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Server error' });
+    }
 }
 
 exports.getWishlist = async (req, res) => {
-    // console.log(req.params);
-    const { id: userId } = req.user
-    const user = await User.findById(userId).populate({
-        path: 'wishlist',
-        select: 'name price image discountedPrice'
-    })
-    // console.log(user.wishlist);
+    try {
+        const { id: userId } = req.user
+        const user = await User.findById(userId).populate({
+            path: 'wishlist',
+            select: 'name price image discountedPrice'
+        })
+        
+        if (!user) return res.status(404).json({ msg: 'User not found' })
 
-    // await user
-    res.status(200).json({ msg: 'fetched wishlist', wishlist: user.wishlist })
-
+        res.status(200).json({ msg: 'fetched wishlist', wishlist: user.wishlist })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Server error' });
+    }
 }

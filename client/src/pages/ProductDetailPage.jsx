@@ -282,14 +282,14 @@ function ProductDetailPage() {
                             animate="visible"
                         >
                             <motion.h1
-                                className="text-3xl md:text-4xl font-bold text-gray-900 mb-2"
+                                className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2"
                                 variants={fadeIn}
                             >
                                 {product.name}
                             </motion.h1>
 
                             <motion.div
-                                className="flex items-center gap-3 mb-4"
+                                className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4"
                                 variants={fadeIn}
                             >
                                 <div className="flex items-center">
@@ -304,8 +304,7 @@ function ProductDetailPage() {
                                         ({product.numReviews || 0} reviews)
                                     </span>
                                 </div>
-                                <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                                <span className={`text-sm font-medium ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                <span className={`text-sm font-medium px-2 py-0.5 rounded-full ${product.stock > 0 ? 'text-green-700 bg-green-50' : 'text-red-700 bg-red-50'}`}>
                                     {product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}
                                 </span>
                             </motion.div>
@@ -315,11 +314,11 @@ function ProductDetailPage() {
                                 variants={fadeIn}
                             >
                                 {discountPercentage > 0 ? (
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-3xl font-bold text-gray-900">
+                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                        <span className="text-2xl sm:text-3xl font-bold text-gray-900">
                                             ${product.discountedPrice?.toFixed(2)}
                                         </span>
-                                        <span className="text-xl text-gray-500 line-through">
+                                        <span className="text-lg sm:text-xl text-gray-500 line-through">
                                             ${product.price?.toFixed(2)}
                                         </span>
                                         <span className="px-2 py-1 bg-red-100 text-red-700 text-sm font-semibold rounded">
@@ -327,7 +326,7 @@ function ProductDetailPage() {
                                         </span>
                                     </div>
                                 ) : (
-                                    <span className="text-3xl font-bold text-gray-900">
+                                    <span className="text-2xl sm:text-3xl font-bold text-gray-900">
                                         ${product.price?.toFixed(2)}
                                     </span>
                                 )}
@@ -341,7 +340,7 @@ function ProductDetailPage() {
                             </motion.p>
 
                             <motion.div
-                                className="grid grid-cols-2 gap-4 mb-6"
+                                className="flex flex-wrap gap-3 mb-6"
                                 variants={fadeIn}
                             >
                                 {/* <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -542,7 +541,7 @@ function ProductDetailPage() {
                                 {product.reviews?.length || 0} Review{product.reviews?.length !== 1 ? 's' : ''}
                             </h3>
 
-                            <div className="space-y-5 max-h-96 overflow-y-auto pr-2">
+                            <div className="space-y-5 max-h-72 sm:max-h-96 overflow-y-auto pr-1 sm:pr-2">
                                 <AnimatePresence>
                                     {product.reviews && product.reviews.length > 0 ? (
                                         product.reviews.map((review, index) => {

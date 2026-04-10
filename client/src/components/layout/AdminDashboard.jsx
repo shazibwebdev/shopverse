@@ -255,8 +255,8 @@ const AdminDashboard = () => {
             <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
             {/* Main Content */}
-            <div className={`flex-1 ${!isMobile && 'ml-64'} `}>
-                <div className="">
+            <div className={`flex-1 min-w-0 ${!isMobile ? 'ml-64' : 'pt-14'}`}>
+                <div className="w-full">
                     <Outlet context={outletContext} />
                 </div>
             </div>
@@ -343,7 +343,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
             {isMobile && (
                 <button
                     onClick={toggleSidebar}
-                    className="fixed top-3 left-3 z-1 bg-blue-600 text-white p-2 rounded-md shadow-lg lg:hidden"
+                    className="fixed top-3 left-3 z-50 bg-blue-600 text-white p-2 rounded-md shadow-lg lg:hidden"
                     aria-label="Open menu"
                 >
                     <Menu size={24} />
@@ -493,7 +493,7 @@ const ProductForm = ({ product, setProduct, onSave, onClose }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto"
         >
             <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
@@ -502,11 +502,11 @@ const ProductForm = ({ product, setProduct, onSave, onClose }) => {
                 className="bg-white rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto"
             >
                 {/* Header */}
-                <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                    <h3 className="text-lg font-medium text-gray-900">
+                <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900">
                         {product._id ? "Edit Product" : "Add New Product"}
                     </h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 flex-shrink-0">
                         <X size={24} />
                     </button>
                 </div>
@@ -518,7 +518,7 @@ const ProductForm = ({ product, setProduct, onSave, onClose }) => {
                             e.preventDefault();
                         }
                     }}
-                    onSubmit={handleSubmit} className="p-6 space-y-6">
+                    onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6">
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Required fields */}
@@ -669,28 +669,26 @@ const ProductForm = ({ product, setProduct, onSave, onClose }) => {
 
                     {/* Additional Images (optional) */}
                     <div>
-                        <div className="flex justify-between items-center mb-1">
-                            <label className="block text-sm font-medium text-gray-700">
-                                Additional Images
-                            </label>
-                            <div className="flex space-x-2">
-                                <input
-                                    type="text"
-                                    value={newImage}
-                                    onChange={(e) => setNewImage(e.target.value)}
-                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Enter image URL"
-                                />
-                                <motion.button
-                                    type='button'
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={handleAddImage}
-                                    className="bg-blue-600 text-white px-3 py-2 rounded-lg"
-                                >
-                                    Add
-                                </motion.button>
-                            </div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Additional Images
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-2 mb-2">
+                            <input
+                                type="text"
+                                value={newImage}
+                                onChange={(e) => setNewImage(e.target.value)}
+                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter image URL"
+                            />
+                            <motion.button
+                                type='button'
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={handleAddImage}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg shrink-0"
+                            >
+                                Add
+                            </motion.button>
                         </div>
 
                         {product.images.length > 0 && (
@@ -731,29 +729,26 @@ const ProductForm = ({ product, setProduct, onSave, onClose }) => {
 
                     {/* Tags (optional) */}
                     <div>
-                        <div className="flex justify-between items-center mb-1">
-                            <label className="block text-sm font-medium text-gray-700">
-                                Tags
-                            </label>
-                            <div className="flex space-x-2">
-                                <input
-                                    type="text"
-                                    value={newTag}
-                                    onChange={(e) => setNewTag(e.target.value)}
-                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Enter tag"
-                                />
-                                <motion.button
-                                    type='button'
-
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={handleAddTag}
-                                    className="bg-blue-600 text-white px-3 py-2 rounded-lg"
-                                >
-                                    Add
-                                </motion.button>
-                            </div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Tags
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-2 mb-2">
+                            <input
+                                type="text"
+                                value={newTag}
+                                onChange={(e) => setNewTag(e.target.value)}
+                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter tag"
+                            />
+                            <motion.button
+                                type='button'
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={handleAddTag}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg shrink-0"
+                            >
+                                Add
+                            </motion.button>
                         </div>
 
                         {product.tags.length > 0 && (
@@ -796,11 +791,11 @@ const ProductForm = ({ product, setProduct, onSave, onClose }) => {
 
 
                     {/* Footer */}
-                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                    <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col-reverse sm:flex-row justify-end gap-3">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
                         >
                             Cancel
                         </button>
@@ -808,7 +803,7 @@ const ProductForm = ({ product, setProduct, onSave, onClose }) => {
                             type="submit"  // ✅ important
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                         >
                             {product._id ? "Update Product" : "Create Product"}
                         </motion.button>

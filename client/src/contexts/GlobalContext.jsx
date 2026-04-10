@@ -26,16 +26,6 @@ export const GlobalProvider = ({ children }) => {
         cart: []
     })
 
-    useEffect(() => {
-        if (!currentUser) {
-            setCartItems({
-                totalCartPrice: 0,
-                cart: []
-            })
-            setWishlistItems([])
-        }
-    }, [currentUser])
-
     // useEffect(() => {
     //     fetchCart()
     // }, [])
@@ -50,6 +40,19 @@ export const GlobalProvider = ({ children }) => {
             console.error(error.response?.data?.msg);
         }
     }
+
+    useEffect(() => {
+        if (!currentUser) {
+            setCartItems({
+                totalCartPrice: 0,
+                cart: []
+            })
+            setWishlistItems([])
+        } else {
+            // Fetch wishlist when user logs in
+            fetchWishlist()
+        }
+    }, [currentUser])
 
     const handleAddToWishlist = async (id) => {
         try {

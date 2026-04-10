@@ -39,18 +39,15 @@ function AppRoutes() {
                     <Route path={'/forgot-password'} element={<ForgotPassword />} />
                     <Route path={'/reset-password/:token'} element={<ResetPassword />} />
 
-
                     {/* PROTECTED ROUTES */}
                     <Route path={'/checkout'} element={
                         <ProtectedRoute >
                             <Checkout />
                         </ProtectedRoute>} />
 
-
-
-
                     <Route path={'/unauthorized'} element={<Unauthorized onBack={() => { navigate(-1) }} />} />
                 </Route>
+                
                 <Route path='/auth' element={<LoginSignUpPage />} />
                 <Route path='/verify-email/:token' element={<VerifyEmail />} />
 
@@ -97,8 +94,6 @@ function AppRoutes() {
                     } />
                 </Route>
 
-
-
                 {/* ADMIN DASHBOARD */}
                 <Route path={'/admin-dashboard'} element={
                     <ProtectedRoute role={'admin'}>
@@ -137,13 +132,3 @@ function AppRoutes() {
 }
 
 export default AppRoutes
-
-// Fuzzy search → helps users find products faster & smarter (handles typos).
-
-// Fly-to-cart animation → makes adding to cart fun & delightful.
-
-// Smart recommender → shows similar products to encourage more sales.
-
-// Stripe Checkout → adds a real, working payment flow (in test mode).
-
-// AI description generator → modern AI wow factor for your admin panel.

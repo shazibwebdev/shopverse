@@ -131,27 +131,27 @@ const OrderDetail = () => {
             className="bg-white rounded-lg shadow overflow-hidden"
         >
             {/* Header */}
-            <div className="p-6 mt-6 border-b border-gray-200 flex items-center justify-between">
-                <div className="flex items-center space-x-4">
+            <div className="p-4 sm:p-6 mt-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+                <div className="flex items-center space-x-3">
                     <Link to={"/user-dashboard/orders"}>
-                        <button className="p-2 rounded-lg hover:bg-gray-100">
+                        <button className="p-2 rounded-lg hover:bg-gray-100 flex-shrink-0">
                             <ArrowLeft className="w-5 h-5" />
                         </button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">
+                        <h1 className="text-lg sm:text-2xl font-bold text-gray-800 break-all">
                             Order {order?.orderId}
                         </h1>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 text-sm">
                             Placed on{" "}
                             {new Date(order?.createdAt).toLocaleDateString()}
                         </p>
                     </div>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2 pl-11 sm:pl-0">
                     <span
-                        className={`px-3 py-1 text-sm rounded-full flex items-center space-x-1 ${getStatusColor(
+                        className={`px-3 py-1 text-sm rounded-full flex items-center gap-1 ${getStatusColor(
                             order?.orderStatus
                         )}`}
                     >
@@ -246,9 +246,9 @@ const OrderDetail = () => {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: index * 0.1 }}
-                                    className="p-4 flex items-center"
+                                    className="p-4 flex items-start gap-3"
                                 >
-                                    <div className="flex-shrink-0 h-16 w-16 bg-gray-200 rounded-md overflow-hidden">
+                                    <div className="flex-shrink-0 h-14 w-14 sm:h-16 sm:w-16 bg-gray-200 rounded-md overflow-hidden">
                                         {item.image ? (
                                             <img
                                                 src={item.image}
@@ -261,23 +261,15 @@ const OrderDetail = () => {
                                             </div>
                                         )}
                                     </div>
-                                    <div className="ml-4 flex-1">
-                                        <h3 className="text-md font-medium text-gray-800">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-sm sm:text-md font-medium text-gray-800 truncate">
                                             {item.name}
                                         </h3>
                                         <p className="text-sm text-gray-500">
-                                            Quantity: {item.quantity}
+                                            Qty: {item.quantity}
                                         </p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-md font-medium text-gray-800">
-                                            ${item.price.toLocaleString()}
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            Subtotal: $
-                                            {(
-                                                item.price * item.quantity
-                                            ).toLocaleString()}
+                                        <p className="text-sm font-medium text-gray-800 mt-1">
+                                            ${item.price.toLocaleString()} &times; {item.quantity} = <span className="font-semibold">${(item.price * item.quantity).toLocaleString()}</span>
                                         </p>
                                     </div>
                                 </motion.div>

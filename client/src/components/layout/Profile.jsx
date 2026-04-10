@@ -234,7 +234,7 @@ const UserProfile = () => {
                 variants={cardVariants}
                 className="bg-white rounded-xl p-6 shadow-md border border-gray-100 mb-6"
               >
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center flex-wrap gap-3 sm:flex-nowrap gap-0 mb-6">
                   <h2 className="text-xl font-semibold text-gray-800">Personal Information</h2>
 
                   {!isEditing ? (
@@ -242,29 +242,30 @@ const UserProfile = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setIsEditing(true)}
-                      className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg"
+                      className="flex items-center bg-blue-600 text-white px-3 py-2 sm:px-4 rounded-lg text-sm sm:text-base"
                     >
-                      <Edit3 className="h-4 w-4 mr-2" />
-                      Edit Username
+                      <Edit3 className="h-4 w-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Edit Username</span>
+                      <span className="sm:hidden">Edit</span>
                     </motion.button>
                   ) : (
-                    <div className="flex space-x-2">
+                    <div className="flex gap-2">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={handleSave}
-                        className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg"
+                        className="flex items-center bg-green-600 text-white px-3 py-2 rounded-lg text-sm"
                       >
-                        <Save className="h-4 w-4 mr-2" />
-                        Save Changes
+                        <Save className="h-4 w-4 mr-1" />
+                        Save
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={handleCancel}
-                        className="flex items-center bg-gray-200 text-gray-800 px-4 py-2 rounded-lg"
+                        className="flex items-center bg-gray-200 text-gray-800 px-3 py-2 rounded-lg text-sm"
                       >
-                        <X className="h-4 w-4 mr-2" />
+                        <X className="h-4 w-4 mr-1" />
                         Cancel
                       </motion.button>
                     </div>
@@ -367,8 +368,7 @@ const UserProfile = () => {
                 variants={cardVariants}
                 className="bg-white rounded-xl p-6 shadow-md border border-gray-100"
               >
-                <div
-                  className="flex justify-between items-center mb-6">
+                <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
                   <h2 className="text-xl font-semibold text-gray-800">Password Settings</h2>
 
                   {!showPasswordFields ? (
@@ -376,21 +376,21 @@ const UserProfile = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setShowPasswordFields(true)}
-                      className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg"
+                      className="flex items-center bg-blue-600 text-white px-3 py-2 rounded-lg text-sm"
                     >
                       <Lock className="h-4 w-4 mr-2" />
                       Change Password
                     </motion.button>
                   ) : (
-                    <div className="flex space-x-2">
+                    <div className="flex gap-2">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         type='submit'
-                        className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg"
+                        className="flex items-center bg-green-600 text-white px-3 py-2 rounded-lg text-sm"
                       >
-                        <Save className="h-4 w-4 mr-2" />
-                        Update Password
+                        <Save className="h-4 w-4 mr-1" />
+                        Update
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
@@ -404,9 +404,9 @@ const UserProfile = () => {
                             confirmPassword: ''
                           }));
                         }}
-                        className="flex items-center bg-gray-200 text-gray-800 px-4 py-2 rounded-lg"
+                        className="flex items-center bg-gray-200 text-gray-800 px-3 py-2 rounded-lg text-sm"
                       >
-                        <X className="h-4 w-4 mr-2" />
+                        <X className="h-4 w-4 mr-1" />
                         Cancel
                       </motion.button>
                     </div>

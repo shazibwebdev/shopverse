@@ -88,7 +88,7 @@ const OrderManagement = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6 ">
+        <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
             <OrderList
                 orders={orders}
                 onSelectOrder={setSelectedOrder}
@@ -218,9 +218,9 @@ const OrderList = ({
                                 <p className="mt-4">No orders found matching your criteria</p>
                             </div>
                         )
-                    :
-                (
-                <table className="min-w-full divide-y divide-gray-200 hidden md:table">
+                    : (
+                        <>
+                <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -307,60 +307,9 @@ const OrderList = ({
                         </AnimatePresence>
                     </tbody>
                 </table>
-                )
+                </>
+                    )
                 }
-
-                {/* Mobile Card View */}
-                <div className="md:hidden space-y-4 p-4">
-                    {orders.map((order) => (
-                        <motion.div
-                            key={order._id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.2 }}
-                            className="border rounded-lg p-4 bg-white shadow-sm"
-                        >
-                            <div className="flex justify-between">
-                                <h2 className="font-semibold text-gray-800">{order.orderId}</h2>
-                                <span
-                                    className={`px-2 py-1 text-xs rounded-full ${order.isPaid
-                                        ? "bg-green-100 text-green-800"
-                                        : "bg-red-100 text-red-800"
-                                        }`}
-                                >
-                                    {order.isPaid ? "Paid" : "Unpaid"}
-                                </span>
-                            </div>
-                            <p className="text-gray-600">{order.shippingInfo.fullName}</p>
-                            <p className="text-sm text-gray-500">
-                                {new Date(order.createdAt).toLocaleDateString()}
-                            </p>
-                            <div className="flex justify-between items-center mt-2">
-                                <span
-                                    className={`px-2 py-1 text-xs rounded-full flex items-center space-x-1 ${getStatusColor(
-                                        order.orderStatus
-                                    )}`}
-                                >
-                                    {getStatusIcon(order.orderStatus)}
-                                    <span>
-                                        {order.orderStatus.charAt(0).toUpperCase() +
-                                            order.orderStatus.slice(1)}
-                                    </span>
-                                </span>
-                                <span className="text-sm font-medium text-gray-700">
-                                    ${order.orderSummary.totalAmount.toLocaleString()}
-                                </span>
-                            </div>
-                            <button
-                                onClick={() => onSelectOrder(order)}
-                                className="mt-3 w-full text-blue-600 hover:text-blue-900 text-sm"
-                            >
-                                View Details
-                            </button>
-                        </motion.div>
-                    ))}
-                </div>
 
 
             </div>

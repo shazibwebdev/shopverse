@@ -150,7 +150,7 @@ const UserDashboard = () => {
             <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
             {/* Main Content */}
-            <div className={`flex-1 ${!isMobile ? 'ml-64' : 'pt-8'} `}>
+            <div className={`flex-1 ${!isMobile ? 'ml-64' : 'pt-14'} `}>
                 <Outlet context={outletContext} />
             </div>
 
@@ -247,7 +247,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
             {isMobile && (
                 <button
                     onClick={toggleSidebar}
-                    className="fixed top-3 left-3 z-1 bg-blue-600 text-white p-2 rounded-md shadow-lg lg:hidden"
+                    className="fixed top-3 left-3 z-50 bg-blue-600 text-white p-2 rounded-md shadow-lg lg:hidden"
                     aria-label="Open menu"
                 >
                     <Menu size={24} />

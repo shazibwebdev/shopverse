@@ -22,15 +22,15 @@ const NavDropdown = () => {
 
     const navigate = useNavigate()
     const menuItems = [
-        // { label: "Your Profile", icon: <User size={20} />, onClick: () => navigate('/profile') },
         { label: "Your Dashboard", icon: <LayoutDashboard size={20} />, onClick: () => navigate('/user-dashboard/account-overview') },
+        ...(currentUser?.role === 'admin' ? [
+            { label: "Admin Dashboard", icon: <Crown size={20} color="gold" />, onClick: () => navigate('/admin-dashboard/store-overview') },
+        ] : []),
         { divider: true },
         {
-            label: (
-                <span onClick={logout} className="flex items-center gap-2 w-full">
-                    <LogOutIcon size={20} /> Logout
-                </span>
-            ),
+            label: "Logout",
+            icon: <LogOutIcon size={20} />,
+            onClick: logout,
         },
     ];
 

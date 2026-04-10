@@ -43,7 +43,7 @@ const CartDropdown = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ duration: 0.2, ease: 'easeIn' }}
-            className="w-[350px] h-screen p-2 fixed top-0 right-0 bg-white shadow-xl rounded-xl z-50 overflow-hidden"
+            className="w-[min(350px,100vw)] h-screen p-2 fixed top-0 right-0 bg-white shadow-xl rounded-xl z-50 overflow-hidden"
           >
             <button
               onClick={toggleCart}

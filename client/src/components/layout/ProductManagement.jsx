@@ -34,15 +34,15 @@ const ProductManagement = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className='p-6'
+            className='p-4 sm:p-6'
         >
-            <div className="flex justify-between items-center mb-6 mt-6">
+            <div className="flex flex-wrap justify-between items-center gap-3 mb-6 mt-6">
                 <h2 className="text-2xl font-bold text-gray-800">Product Management</h2>
                 <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleCreateProduct}
-                    className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg"
+                    className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg shrink-0"
                 >
                     <Plus size={20} />
                     <span>Add Product</span>
@@ -84,7 +84,7 @@ const ProductManagement = () => {
                         < Loader />
                     </div>
                 ) : (
-                    <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="bg-transparent sm:bg-white sm:p-8 rounded-xl shadow-sm sm:border sm:border-gray-100 overflow-hidden">
                         {products.length === 0 ? (
                             <div className="p-8 text-center">
                                 <Package size={48} className="mx-auto text-gray-300 mb-4" />
