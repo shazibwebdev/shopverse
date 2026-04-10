@@ -63,37 +63,9 @@ function Footer() {
     { icon: <Github className="w-5 h-5" />, url: 'https://github.com/shazibwebdev', label: 'GitHub' },
   ];
 
-  const features = [
-    { icon: <CreditCard className="w-5 h-5" />, text: 'Secure Payment' },
-    { icon: <Truck className="w-5 h-5" />, text: 'Fast Delivery' },
-    { icon: <Shield className="w-5 h-5" />, text: 'Buyer Protection' },
-    { icon: <ShoppingBag className="w-5 h-5" />, text: 'Easy Returns' },
-  ];
 
   return (
     <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-300">
-      {/* Features Bar */}
-      <div className="border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-center gap-3 justify-center md:justify-start"
-              >
-                <div className="p-2 bg-indigo-600/20 text-indigo-400 rounded-lg">
-                  {feature.icon}
-                </div>
-                <span className="text-sm font-medium text-gray-200">{feature.text}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -206,28 +178,6 @@ function Footer() {
           </div>
         </div>
 
-        {/* Newsletter Section */}
-        <div className="mt-12 pt-8 border-t border-gray-700">
-          <div className="max-w-2xl mx-auto text-center">
-            <h3 className="text-white font-semibold text-xl mb-2">Stay Updated</h3>
-            <p className="text-gray-400 mb-6">Subscribe to our newsletter for exclusive deals and updates</p>
-            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition"
-              />
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                type="submit"
-                className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transition"
-              >
-                Subscribe
-              </motion.button>
-            </form>
-          </div>
-        </div>
       </div>
 
       {/* Bottom Bar */}
