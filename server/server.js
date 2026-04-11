@@ -155,6 +155,7 @@ const orderRoutes = require('./routes/orderRoutes')
 const userRoutes = require('./routes/userRoutes')
 const uploadRoutes = require('./routes/uploadRoutes')
 const sessionRoutes = require('./routes/sessionRoutes')
+const aiRoutes = require('./routes/aiRoutes')
 
 app.use('/api/products', productRoutes)
 app.use('/api/auth', authRoutes)
@@ -164,6 +165,7 @@ app.use('/api/order', orderRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/session', sessionRoutes)
+app.use('/api/ai', aiRoutes)
 
 app.get('/health', (req, res) => {
   res.json({ msg: 'server is running' })

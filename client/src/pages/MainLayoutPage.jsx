@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify'
 import Navbar from '../components/layout/Navbar'
 import CartDropdown from '../components/common/CartDropdown'
 import Footer from '../components/layout/Footer'
+import AiChat from '../components/common/AiChat'
 import { useGlobal } from '../contexts/GlobalContext'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -50,6 +51,7 @@ function MainLayoutPage() {
       </AnimatePresence>
       <Navbar />
       <CartDropdown />
+      <AiChat />
       <div className='mt-[70px] sm:mt-[80px]'>
         <Outlet />
       </div>
