@@ -19,21 +19,53 @@ Guidelines:
 - For order/account questions, direct users to login or contact support
 - Never make up products that aren't in the provided list`;
 
+// Extract keywords from user query for better search
+const extractKeywords = (query) => {
+  // Remove common words that don't help search
+  const stopWords = ['show', 'all', 'me', 'the', 'a', 'an', 'is', 'are', 'available', 'please', 'i', 'want', 'need', 'find', 'looking', 'for', 'can', 'you', 'give', 'list'];
+  
+  const words = query.toLowerCase().split(/\s+/);
+  const keywords = words.filter(word => word.length > 2 && !stopWords.includes(word));
+  
+  return keywords;
+};
+
 // Search products in database
 const searchProducts = async (query) => {
   if (!query) return [];
   
-  return Product.find({
-    $or: [
-      { name: { $regex: query, $options: 'i' } },
-      { brand: { $regex: query, $options: 'i' } },
-      { category: { $regex: query, $options: 'i' } },
-      { description: { $regex: query, $options: 'i' } }
-    ]
-  })
-  .select('name price brand category image rating stock discountedPrice')
-  .limit(5)
-  .lean();
+  try {
+    // Extract meaningful keywords from the query
+    const keywords = extractKeywords(query);
+    console.log('Extracted keywords:', keywords);
+    
+    if (keywords.length === 0) return [];
+    
+    // Build search query - search for ANY of the keywords
+    const searchConditions = keywords.map(keyword => ({
+      $or: [
+        { name: { $regex: keyword, $options: 'i' } },
+        { brand: { $regex: keyword, $options: 'i' } },
+        { category: { $regex: keyword, $options: 'i' } },
+        { description: { $regex: keyword, $options: 'i' } },
+        { tags: { $in: [new RegExp(keyword, 'i')] } }
+      ]
+    }));
+    
+    const foundProducts = await Product.find({
+      $or: searchConditions
+    })
+    .select('name price brand category image rating stock discountedPrice')
+    .limit(5)
+    .lean();
+
+    console.log('Products found:', foundProducts.length);
+    
+    return foundProducts;
+  } catch (error) {
+    console.error('Product search error:', error.message);
+    return [];
+  }
 };
 
 // Chat endpoint using Groq API

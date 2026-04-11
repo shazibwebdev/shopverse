@@ -138,7 +138,7 @@ function AiChat() {
                         {msg.products.map((product, j) => (
                           <Link
                             key={j}
-                            to={`/product/${product._id}`}
+                            to={`/single-product/${product._id}`}
                             onClick={() => setAiChatOpen(false)}
                             className="flex items-center gap-2 p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors group"
                           >
