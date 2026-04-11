@@ -372,36 +372,7 @@ Product search uses Fuse.js with:
 
 ---
 
-## 📸 Screenshots
 
-### Home Page
-![Home Page](screenshots/home.png)
-
-### Product Catalog
-![Products](screenshots/products.png)
-
-### Product Detail
-![Product Detail](screenshots/product-detail.png)
-
-### Cart
-![Cart](screenshots/cart.png)
-
-### Checkout
-![Checkout](screenshots/checkout.png)
-
-### Admin Dashboard
-![Admin Dashboard](screenshots/admin.png)
-
-### AI Assistant
-![AI Chat](screenshots/ai-chat.png)
-
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
 
 ## 👨‍💻 Author
 
