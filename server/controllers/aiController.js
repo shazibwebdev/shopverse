@@ -5,24 +5,73 @@ const Product = require("../models/Product");
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-const SYSTEM_PROMPT = `You are ShopVerse AI, a helpful shopping assistant for ShopVerse e-commerce store.
+const SYSTEM_PROMPT = `You are ShopVerse AI, a friendly and helpful shopping assistant for ShopVerse e-commerce store.
 
 Store Info:
 - Name: ShopVerse
-- Type: E-commerce store selling various products
-- Features: Product browsing, cart, wishlist, user accounts, orders
+- Type: E-commerce store selling various products (electronics, fashion, accessories, etc.)
+- Features: Product browsing, cart, wishlist, user accounts, orders, Stripe payments
+- Built with: React, Node.js, MongoDB, Express
+
+Personality:
+- Friendly, warm, and professional
+- Enthusiastic about helping customers find products
+- Concise but helpful (2-3 sentences max for most responses)
 
 Guidelines:
-- Be friendly, helpful, and concise (2-3 sentences max)
-- When products are provided, mention them by name with prices
-- If no products match, suggest browsing categories or trying different keywords
-- For order/account questions, direct users to login or contact support
-- Never make up products that aren't in the provided list`;
+- For greetings: Respond warmly and ask how you can help them shop today
+- For product searches: Mention products by name with prices when provided
+- For general questions: Answer helpfully and guide them to relevant features
+- For order/account questions: Direct users to login or check their account dashboard
+- Never make up products that aren't in the provided list
+- If no products found for a search, suggest browsing categories or popular items`;
+
+// Check if message is a greeting or general conversation
+const isGreeting = (message) => {
+  const greetings = [
+    'hi', 'hello', 'hey', 'hola', 'howdy', 'greetings',
+    'good morning', 'good afternoon', 'good evening',
+    'what\'s up', 'whats up', 'sup', 'yo'
+  ];
+  
+  const lowerMessage = message.toLowerCase().trim();
+  
+  // Check if it's a direct greeting
+  if (greetings.some(greeting => lowerMessage === greeting || lowerMessage.startsWith(greeting + ' '))) {
+    return true;
+  }
+  
+  // Check if it's a short message that's likely a greeting
+  const words = lowerMessage.split(/\s+/);
+  if (words.length <= 2 && greetings.some(g => words.includes(g))) {
+    return true;
+  }
+  
+  return false;
+};
+
+// Check if message is a general question (not product search)
+const isGeneralQuestion = (message) => {
+  const generalPatterns = [
+    /^(what|who|how|where|when|why|can you|could you|would you|are you|do you|is this)/i,
+    /help/i,
+    /thank/i,
+    /thanks/i,
+    /bye/i,
+    /goodbye/i,
+    /about shopverse/i,
+    /about you/i,
+    /who (are|made|built) (you|this)/i,
+    /what (can|do) you (do|help)/i
+  ];
+  
+  return generalPatterns.some(pattern => pattern.test(message));
+};
 
 // Extract keywords from user query for better search
 const extractKeywords = (query) => {
   // Remove common words that don't help search
-  const stopWords = ['show', 'all', 'me', 'the', 'a', 'an', 'is', 'are', 'available', 'please', 'i', 'want', 'need', 'find', 'looking', 'for', 'can', 'you', 'give', 'list'];
+  const stopWords = ['show', 'all', 'me', 'the', 'a', 'an', 'is', 'are', 'available', 'please', 'i', 'want', 'need', 'find', 'looking', 'for', 'can', 'you', 'give', 'list', 'some', 'any', 'have', 'got'];
   
   const words = query.toLowerCase().split(/\s+/);
   const keywords = words.filter(word => word.length > 2 && !stopWords.includes(word));
@@ -80,23 +129,33 @@ exports.chat = async (req, res) => {
   }
 
   try {
-    // Search for relevant products
-    const products = await searchProducts(message);
-
-    // Build the user message
+    let products = [];
     let userMessage = message;
     
-    if (products.length > 0) {
-      userMessage = `${message}\n\nProducts found in store:\n${JSON.stringify(products.map(p => ({
-        name: p.name,
-        price: p.price,
-        brand: p.brand,
-        category: p.category,
-        rating: p.rating,
-        inStock: p.stock > 0
-      })), null, 2)}\n\nRecommend relevant products from this list. Mention product names and prices.`;
-    } else {
-      userMessage = `${message}\n\nNo products found for this query. Suggest the user try different keywords or browse our categories.`;
+    // Check if it's a greeting - don't search for products
+    if (isGreeting(message)) {
+      userMessage = `${message}\n\nThis is a greeting. Respond warmly and ask how you can help them shop today. Mention that you can help them find products, check prices, or answer questions about the store.`;
+    }
+    // Check if it's a general question - don't search for products
+    else if (isGeneralQuestion(message)) {
+      userMessage = `${message}\n\nThis is a general question or conversation. Answer helpfully. If they're asking about the store, mention ShopVerse is a full-stack e-commerce platform built with React, Node.js, and MongoDB. If they need help, let them know you can assist with product searches, prices, and store information.`;
+    }
+    // It's likely a product search
+    else {
+      products = await searchProducts(message);
+      
+      if (products.length > 0) {
+        userMessage = `${message}\n\nProducts found in store:\n${JSON.stringify(products.map(p => ({
+          name: p.name,
+          price: p.discountedPrice && p.discountedPrice !== 0 ? p.discountedPrice : p.price,
+          brand: p.brand,
+          category: p.category,
+          rating: p.rating,
+          inStock: p.stock > 0
+        })), null, 2)}\n\nRecommend relevant products from this list. Mention product names and prices.`;
+      } else {
+        userMessage = `${message}\n\nNo products found for this specific search. Be helpful and suggest they try:\n- Different keywords (e.g., "shoes", "watch", "headphones")\n- Browsing by category\n- Checking out featured items\nKeep the response friendly and brief.`;
+      }
     }
 
     // Call Groq API

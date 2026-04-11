@@ -12,6 +12,7 @@ export default function LoginSignUpPage() {
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const [showLogInPassword, setShowLogInPassword] = useState(false);
   const [isLoginActive, setIsLoginActive] = useState(false);
+  const [isLoading, setIsLoading] = useState({ login: false, signup: false });
 
   // Resend verification state
   const [showResend, setShowResend] = useState(false);
@@ -34,8 +35,17 @@ export default function LoginSignUpPage() {
     reset: loginReset,
   } = useForm();
 
-  const onSignUpSubmit = (data) => signup(data, signUpReset, setIsLoginActive);
-  const onLogInSubmit = (data) => login(data, loginReset);
+  const onSignUpSubmit = async (data) => {
+    setIsLoading(prev => ({ ...prev, signup: true }));
+    await signup(data, signUpReset, setIsLoginActive);
+    setIsLoading(prev => ({ ...prev, signup: false }));
+  };
+
+  const onLogInSubmit = async (data) => {
+    setIsLoading(prev => ({ ...prev, login: true }));
+    await login(data, loginReset);
+    setIsLoading(prev => ({ ...prev, login: false }));
+  };
 
   const handleResendVerification = async (e) => {
     e.preventDefault();
@@ -62,7 +72,11 @@ export default function LoginSignUpPage() {
 
       <main>
         <Link to={'/'}>
-          <button className="absolute top-3 left-3 bg-white text-green-800 px-3 py-2 font-bold rounded cursor-pointer">
+          <button className="absolute top-4 left-4 z-50 bg-white/90 backdrop-blur-sm text-gray-700 px-4 py-2 font-semibold rounded-lg cursor-pointer shadow-lg hover:shadow-xl hover:bg-white transition-all duration-200 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
             Home
           </button>
         </Link>
@@ -132,7 +146,16 @@ export default function LoginSignUpPage() {
                 </span>
                 {signUpErrors.password && <p className="text-red-500 text-sm">{signUpErrors.password.message}</p>}
               </div>
-              <button className="same signUp" type="submit">Sign Up</button>
+              <button className="same signUp" type="submit" disabled={isLoading.signup}>
+                {isLoading.signup ? (
+                  <>
+                    <span className="spinner"></span>
+                    Signing Up...
+                  </>
+                ) : (
+                  'Sign Up'
+                )}
+              </button>
             </form>
           </div>
 
@@ -175,7 +198,16 @@ export default function LoginSignUpPage() {
                 {logInErrors.password && <p className="text-red-500 text-sm">{logInErrors.password.message}</p>}
               </div>
 
-              <button className="same logIn" type="submit">Log In</button>
+              <button className="same logIn" type="submit" disabled={isLoading.login}>
+                {isLoading.login ? (
+                  <>
+                    <span className="spinner"></span>
+                    Logging In...
+                  </>
+                ) : (
+                  'Log In'
+                )}
+              </button>
               <Link to={'/forgot-password'}>
                 <p className="text-sm text-[green] font-semibold">
                   Forgot password?
