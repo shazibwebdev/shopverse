@@ -176,6 +176,21 @@ export const GlobalProvider = ({ children }) => {
     const toggleCart = () => setIsOpen((prev) => !prev);
 
     const [isOverlayOpen, setIsOverlayOpen] = useState(false)
+
+    // ===================================
+    // AI CHAT STATE
+    // ===================================
+    const [aiMessages, setAiMessages] = useState([])
+    const [aiChatOpen, setAiChatOpen] = useState(false)
+
+    const addAiMessage = (message) => {
+        setAiMessages(prev => [...prev, message])
+    }
+
+    const clearAiMessages = () => {
+        setAiMessages([])
+    }
+
     return (
         <GlobalContext.Provider value={{
             isWishlistOpen,
@@ -204,7 +219,14 @@ export const GlobalProvider = ({ children }) => {
             isCartLoading,
             loadingProductId,
 
-            qtyUpdateId
+            qtyUpdateId,
+
+            // AI Chat
+            aiMessages,
+            addAiMessage,
+            clearAiMessages,
+            aiChatOpen,
+            setAiChatOpen
         }}>
             {children}
         </GlobalContext.Provider>

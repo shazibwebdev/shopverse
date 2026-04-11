@@ -1,8 +1,9 @@
-const { GoogleGenAI } = require("@google/genai");
 const Product = require("../models/Product");
 
-// Initialize Gemini - API key from environment
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Using Groq API - Free tier with generous limits
+// Get your free API key at: https://console.groq.com
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 const SYSTEM_PROMPT = `You are ShopVerse AI, a helpful shopping assistant for ShopVerse e-commerce store.
 
@@ -35,7 +36,7 @@ const searchProducts = async (query) => {
   .lean();
 };
 
-// Chat endpoint
+// Chat endpoint using Groq API
 exports.chat = async (req, res) => {
   const { message } = req.body;
 
@@ -50,34 +51,47 @@ exports.chat = async (req, res) => {
     // Search for relevant products
     const products = await searchProducts(message);
 
-    // Build the prompt
-    let prompt = SYSTEM_PROMPT;
+    // Build the user message
+    let userMessage = message;
     
     if (products.length > 0) {
-      prompt += `\n\nProducts available in our store right now:\n${JSON.stringify(products.map(p => ({
+      userMessage = `${message}\n\nProducts found in store:\n${JSON.stringify(products.map(p => ({
         name: p.name,
         price: p.price,
-        discountedPrice: p.discountedPrice,
         brand: p.brand,
         category: p.category,
+        rating: p.rating,
         inStock: p.stock > 0
-      })), null, 2)}\n\nIf relevant, recommend these products with their names and prices.`;
+      })), null, 2)}\n\nRecommend relevant products from this list. Mention product names and prices.`;
     } else {
-      prompt += `\n\nNo products matched the user's search. Be helpful and suggest they browse categories or try different keywords.`;
+      userMessage = `${message}\n\nNo products found for this query. Suggest the user try different keywords or browse our categories.`;
     }
 
-    prompt += `\n\nUser message: ${message}`;
-
-    // Call Gemini API
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ 
-        role: 'user', 
-        parts: [{ text: prompt }] 
-      }]
+    // Call Groq API
+    const response = await fetch(GROQ_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: userMessage }
+        ],
+        max_tokens: 500,
+        temperature: 0.7
+      })
     });
 
-    const reply = response?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'API request failed');
+    }
+
+    const data = await response.json();
+    const reply = data.choices?.[0]?.message?.content;
 
     if (!reply) {
       throw new Error("Empty response from AI");
@@ -92,8 +106,7 @@ exports.chat = async (req, res) => {
   } catch (error) {
     console.error("AI Chat Error:", error.message);
     
-    // Handle specific errors
-    if (error.message?.includes('API key')) {
+    if (error.message?.includes('API key') || error.message?.includes('invalid')) {
       return res.status(500).json({ 
         success: false, 
         message: "AI service not configured properly" 

@@ -3,18 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Bot, Sparkles, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
+import { useGlobal } from '../../contexts/GlobalContext';
 
 function AiChat() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { 
+    aiMessages, 
+    addAiMessage, 
+    clearAiMessages, 
+    aiChatOpen, 
+    setAiChatOpen 
+  } = useGlobal();
+  
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, loading]);
+  }, [aiMessages, loading]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -22,23 +29,23 @@ function AiChat() {
 
     const userMessage = message.trim();
     setMessage('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    addAiMessage({ role: 'user', content: userMessage });
     setLoading(true);
 
     try {
       const { data } = await api.post('/api/ai/chat', { message: userMessage });
       
-      setMessages(prev => [...prev, { 
+      addAiMessage({ 
         role: 'assistant', 
         content: data.reply,
         products: data.products 
-      }]);
+      });
     } catch (error) {
       console.error('Chat error:', error);
-      setMessages(prev => [...prev, { 
+      addAiMessage({ 
         role: 'assistant', 
         content: 'Sorry, I\'m having trouble connecting right now. Please try again in a moment.' 
-      }]);
+      });
     } finally {
       setLoading(false);
     }
@@ -48,12 +55,12 @@ function AiChat() {
     <>
       {/* Floating Button */}
       <AnimatePresence>
-        {!isOpen && (
+        {!aiChatOpen && (
           <motion.button
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            onClick={() => setIsOpen(true)}
+            onClick={() => setAiChatOpen(true)}
             className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-r from-indigo-500 to-purple-600 
               rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform
               hover:shadow-xl hover:shadow-indigo-500/25"
@@ -65,7 +72,7 @@ function AiChat() {
 
       {/* Chat Window */}
       <AnimatePresence>
-        {isOpen && (
+        {aiChatOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -86,7 +93,7 @@ function AiChat() {
                 </div>
               </div>
               <button 
-                onClick={() => setIsOpen(false)} 
+                onClick={() => setAiChatOpen(false)} 
                 className="text-white/70 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors"
               >
                 <X size={18} />
@@ -95,7 +102,7 @@ function AiChat() {
 
             {/* Messages */}
             <div className="h-80 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-gray-50 to-white">
-              {messages.length === 0 && (
+              {aiMessages.length === 0 && (
                 <div className="text-center py-10">
                   <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3">
                     <Bot className="text-indigo-500" size={28} />
@@ -116,7 +123,7 @@ function AiChat() {
                 </div>
               )}
 
-              {messages.map((msg, i) => (
+              {aiMessages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] ${
                     msg.role === 'user' 
@@ -132,7 +139,7 @@ function AiChat() {
                           <Link
                             key={j}
                             to={`/product/${product._id}`}
-                            onClick={() => setIsOpen(false)}
+                            onClick={() => setAiChatOpen(false)}
                             className="flex items-center gap-2 p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors group"
                           >
                             <img 
