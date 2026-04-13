@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from "framer-motion"
 import api from '../services/api'
-import ScrollToTop from '../components/common/ScrollToTop'
 import Loader from './common/Loader'
 import ProductCard from './common/ProductCard'
 import { PackageX, RefreshCw, Filter, X } from 'lucide-react'
@@ -43,17 +42,17 @@ function Products() {
   const [brands, setBrands] = useState([])
 
   useEffect(() => {
-    if (search === '') {
-      setPage(1)
-      fetchProducts(1)
-    }
+    setPage(1)
+    fetchProducts(1)
   }, [search])
 
   const fetchProducts = async (pageToFetch = page) => {
     setLoading(true)
     setError(null)
     try {
-      const query = serializeFilters()
+      // Get fresh filter values at fetch time
+      const currentFilters = watch()
+      const query = serializeFilters(currentFilters)
       navigate(`${location.pathname}?${query}`)
       const res = await api.get(`/api/products/get-products?${query}&page=${pageToFetch}&limit=${LIMIT}`)
       setProducts(res.data.products)
@@ -67,19 +66,26 @@ function Products() {
     }
   }
 
+  // Initial fetch on mount
   useEffect(() => {
     fetchProducts(1)
   }, [])
 
+  // Fetch when filters change (skip initial since we handle it above)
+  const isFirstRender = useRef(true)
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
     setPage(1)
     fetchProducts(1)
   }, [JSON.stringify(filters)])
 
-  const serializeFilters = () => {
+  const serializeFilters = (currentFilters) => {
     let params = new URLSearchParams()
-    Object.keys(filters).forEach((key) => {
-      const value = filters[key]
+    Object.keys(currentFilters).forEach((key) => {
+      const value = currentFilters[key]
       if (Array.isArray(value)) {
         if (key === 'priceRange') {
           // only send priceRange if user actually changed it from the default
@@ -142,7 +148,6 @@ function Products() {
 
   return (
     <>
-      <ScrollToTop />
 
       <HeroSection />
       <div className='products-section bg-gray-50 relative flex flex-col lg:flex-row min-h-screen'>
@@ -218,6 +223,7 @@ function Products() {
                       placeholder='Search products...'
                       type='text'
                       name='search'
+                      value={search}
                       onChange={(e) => {
                         setSearch(e.target.value)
                       }}
@@ -232,7 +238,18 @@ function Products() {
                         ? <p className='text-gray-500'>No categories available.</p>
                         : categories.map(category => (
                           <label key={category} className='flex gap-2 items-center cursor-pointer py-1'>
-                            <input type='checkbox' value={category} {...register('categories')} />
+                            <input 
+                              type='checkbox' 
+                              checked={filters.categories?.includes(category) || false}
+                              onChange={(e) => {
+                                const currentCategories = filters.categories || []
+                                if (e.target.checked) {
+                                  setValue('categories', [...currentCategories, category])
+                                } else {
+                                  setValue('categories', currentCategories.filter(c => c !== category))
+                                }
+                              }}
+                            />
                             <span className='text-gray-700'>{category}</span>
                           </label>
                         ))
@@ -247,7 +264,18 @@ function Products() {
                         ? <p className='text-gray-500'>No brands available.</p>
                         : brands.map(brand => (
                           <label key={brand} className='flex gap-2 items-center cursor-pointer py-1'>
-                            <input type='checkbox' value={brand} {...register('brands')} />
+                            <input 
+                              type='checkbox' 
+                              checked={filters.brands?.includes(brand) || false}
+                              onChange={(e) => {
+                                const currentBrands = filters.brands || []
+                                if (e.target.checked) {
+                                  setValue('brands', [...currentBrands, brand])
+                                } else {
+                                  setValue('brands', currentBrands.filter(b => b !== brand))
+                                }
+                              }}
+                            />
                             <span className='text-gray-700'>{brand}</span>
                           </label>
                         ))
@@ -261,11 +289,10 @@ function Products() {
                       type='range'
                       min={0}
                       max={5000}
-                      defaultValue={0}
-                      {...register('priceRange')}
+                      value={filters.priceRange[0]}
                       ref={priceRangeRef}
                       onChange={(e) => {
-                        setValue('priceRange', [e.target.value, 5000])
+                        setValue('priceRange', [e.target.value, filters.priceRange[1]])
                       }}
                       className='w-full'
                     />
@@ -285,7 +312,10 @@ function Products() {
                         search: '',
                         priceRange: ["0", "5000"]
                       })
-                      priceRangeRef.current.value = 0
+                      setSearch('')
+                      if (priceRangeRef.current) {
+                        priceRangeRef.current.value = 0
+                      }
                     }}
                     className='bg-green-600 text-white font-semibold text-lg py-2 rounded'
                   >
@@ -312,6 +342,7 @@ function Products() {
               placeholder='Search products...'
               type='text'
               name='search'
+              value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
               }}
@@ -326,7 +357,18 @@ function Products() {
                 ? <p className='text-gray-500'>No categories available.</p>
                 : categories.map(category => (
                   <label key={category} className='flex gap-2 items-center cursor-pointer py-1'>
-                    <input type='checkbox' value={category} {...register('categories')} />
+                    <input 
+                      type='checkbox' 
+                      checked={filters.categories?.includes(category) || false}
+                      onChange={(e) => {
+                        const currentCategories = filters.categories || []
+                        if (e.target.checked) {
+                          setValue('categories', [...currentCategories, category])
+                        } else {
+                          setValue('categories', currentCategories.filter(c => c !== category))
+                        }
+                      }}
+                    />
                     <span className='text-gray-700'>{category}</span>
                   </label>
                 ))
@@ -341,7 +383,18 @@ function Products() {
                 ? <p className='text-gray-500'>No brands available.</p>
                 : brands.map(brand => (
                   <label key={brand} className='flex gap-2 items-center cursor-pointer py-1'>
-                    <input type='checkbox' value={brand} {...register('brands')} />
+                    <input 
+                      type='checkbox' 
+                      checked={filters.brands?.includes(brand) || false}
+                      onChange={(e) => {
+                        const currentBrands = filters.brands || []
+                        if (e.target.checked) {
+                          setValue('brands', [...currentBrands, brand])
+                        } else {
+                          setValue('brands', currentBrands.filter(b => b !== brand))
+                        }
+                      }}
+                    />
                     <span className='text-gray-700'>{brand}</span>
                   </label>
                 ))
@@ -355,11 +408,10 @@ function Products() {
               type='range'
               min={0}
               max={5000}
-              defaultValue={0}
-              {...register('priceRange')}
+              value={filters.priceRange[0]}
               ref={priceRangeRef}
               onChange={(e) => {
-                setValue('priceRange', [e.target.value, 5000])
+                setValue('priceRange', [e.target.value, filters.priceRange[1]])
               }}
               className='w-full'
             />
@@ -379,7 +431,10 @@ function Products() {
                 search: '',
                 priceRange: ["0", "5000"]
               })
-              priceRangeRef.current.value = 0
+              setSearch('')
+              if (priceRangeRef.current) {
+                priceRangeRef.current.value = 0
+              }
             }}
             className='bg-green-600 text-white font-semibold text-lg py-2 rounded'
           >
