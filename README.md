@@ -11,7 +11,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?style=flat-square&logo=vercel)](https://vercel.com/)
 
-**[Live Demo](https://shopverse.vercel.app) · [GitHub](https://github.com/shazibwebdev/shopverse)**
+**[Live Demo](https://shazib-shopverse.vercel.app) · [GitHub](https://github.com/shazibwebdev/shopverse)**
 
 </div>
 
