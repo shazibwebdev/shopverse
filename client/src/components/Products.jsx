@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from "framer-motion"
 import api from '../services/api'
+import ScrollToTop from '../components/common/ScrollToTop'
 import Loader from './common/Loader'
 import ProductCard from './common/ProductCard'
 import { PackageX, RefreshCw, Filter, X } from 'lucide-react'
@@ -141,6 +142,8 @@ function Products() {
 
   return (
     <>
+      <ScrollToTop />
+
       <HeroSection />
       <div className='products-section bg-gray-50 relative flex flex-col lg:flex-row min-h-screen'>
         {/* Mobile Filter Toggle Button */}

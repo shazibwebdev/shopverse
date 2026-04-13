@@ -1,3 +1,4 @@
+import ScrollToTop from '../components/common/ScrollToTop'
 import api from '../services/api';
 import React, { useRef, useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -140,6 +141,7 @@ function ProductDetailPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
         >
+            <ScrollToTop />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Breadcrumb */}
                 <motion.div
