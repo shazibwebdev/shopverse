@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { loadStripe } from '@stripe/stripe-js'
 import Loader from "../common/Loader";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function Checkout() {
 
@@ -18,6 +19,7 @@ export default function Checkout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
 
+  const {currentUser} = useAuth()  
 
   const { cartItems, handleQtyInc, handleQtyDec, handleRemoveCartItem, isCartLoading,
     qtyUpdateId, setCartItems
@@ -36,8 +38,8 @@ export default function Checkout() {
     reValidateMode: "onChange",
     defaultValues: {
       // Shipping
-      fullName: "",
-      email: "",
+      fullName: currentUser ? currentUser.username : "",
+      email: currentUser ? currentUser.email : "",
       phone: "",
       address: "",
       city: "",

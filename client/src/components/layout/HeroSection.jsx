@@ -84,7 +84,7 @@ function HeroSection() {
   // Platform statistics
   const stats = [
     { value: "40+", label: "API Endpoints", icon: <Zap className="w-4 h-4" /> },
-    { value: "5", label: "Data Models", icon: <Database className="w-4 h-4" /> },
+    { value: "4", label: "Data Models", icon: <Database className="w-4 h-4" /> },
     { value: "2", label: "User Roles", icon: <Users className="w-4 h-4" /> },
     { value: "6", label: "Order States", icon: <Package className="w-4 h-4" /> }
   ];
